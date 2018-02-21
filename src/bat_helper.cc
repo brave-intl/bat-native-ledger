@@ -732,7 +732,7 @@ std::string BatHelper::sign(std::string* keys, std::string* values, const unsign
   }
   std::vector<uint8_t> signedMsg(crypto_sign_BYTES + message.length());
   uint64_t signedMsgSize = 0;
-  crypto_sign(&signedMsg.front(), &signedMsgSize, (const unsigned char*)message.c_str(),
+  crypto_sign(&signedMsg.front(), reinterpret_cast<unsigned long long*>(&signedMsgSize), (const unsigned char*)message.c_str(),
     (uint64_t)message.length(), &secretKey.front());
   std::vector<uint8_t> signature(crypto_sign_BYTES);
   std::copy(signedMsg.begin(), signedMsg.begin() + crypto_sign_BYTES, signature.begin());
