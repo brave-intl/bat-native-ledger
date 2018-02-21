@@ -8,10 +8,12 @@
 #include <string>
 #include <vector>
 #include <mutex>
+
+#include "base/callback.h"
+
 #include "bat_balance.h"
 #include "bat_client_webrequest.h"
 #include "bat_helper.h"
-#include "base/callback.h"
 
 namespace bat_client {
 

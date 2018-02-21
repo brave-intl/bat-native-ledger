@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "bat_balance.h"
+
 #include "static_values.h"
 
 namespace bat_balance {

@@ -3,19 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "bat_publisher.h"
-#include "leveldb/db.h"
+
+#include <cmath>
+#include <algorithm>
+
 #include "base/sequenced_task_runner.h"
 #include "base/bind.h"
 #include "base/files/file_path.h"
 #include "base/path_service.h"
 #include "base/files/file_util.h"
+#include "base/logging.h"
 #include "base/task_scheduler/post_task.h"
 #include "chrome/browser/browser_process.h"
-#include "static_values.h"
-#include <cmath>
-#include <algorithm>
+#include "third_party/leveldatabase/src/include/leveldb/db.h"
 
-#include "logging.h"
+#include "static_values.h"
+
 
 /* foo.bar.example.com
    QLD = ‘bar’

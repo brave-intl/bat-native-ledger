@@ -3,29 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "bat_helper.h"
-#include "static_values.h"
-#include "base/json/json_reader.h"
-#include "base/json/json_writer.h"
-#include "base/values.h"
-#include "base/files/file_path.h"
-#include "base/path_service.h"
-#include "base/files/file_util.h"
-#include "base/sequenced_task_runner.h"
-#include "base/bind.h"
-#include "base/task_scheduler/post_task.h"
-#include "chrome/browser/browser_process.h"
-#include "browser_thread.h"
-#include "tweetnacl.h"
+
 #include <openssl/hkdf.h>
 #include <openssl/digest.h>
 #include <openssl/sha.h>
 #include <openssl/base64.h>
-
 #include <sstream>
 #include <random>
 #include <utility>
 #include <iomanip>
 #include <ctime>
+
+#include "base/json/json_reader.h"
+#include "base/json/json_writer.h"
+#include "base/files/file_path.h"
+#include "base/files/file_util.h"
+#include "base/path_service.h"
+#include "base/sequenced_task_runner.h"
+#include "base/task_scheduler/post_task.h"
+#include "base/values.h"
+#include "base/bind.h"
+#include "chrome/browser/browser_process.h"
+#include "content/public/browser/browser_thread.h"
+
+#include "static_values.h"
+#include "tweetnacl.h"
 
 
 REQUEST_CREDENTIALS_ST::REQUEST_CREDENTIALS_ST() {}

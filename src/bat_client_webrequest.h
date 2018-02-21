@@ -10,10 +10,10 @@
 #include <vector>
 #include <mutex>
 
-#include "bat_helper.h"
-#include "url_fetcher_delegate.h"
 #include "base/callback.h"
+#include "net/url_request/url_fetcher_delegate.h"
 
+#include "bat_helper.h"
 
 // We have to implement another fetcher class for iOS
 

@@ -5,12 +5,13 @@
 #ifndef BAT_PUBLISHER_H_
 #define BAT_PUBLISHER_H_
 
-#include "bat_helper.h"
-#include "base/callback.h"
 #include <string>
 #include <map>
 #include <mutex>
 #include <vector>
+
+#include "bat_helper.h"
+#include "base/callback.h"
 
 namespace leveldb {
 class DB;

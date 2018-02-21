@@ -5,8 +5,8 @@
 #ifndef LEDGER_H_
 #define LEDGER_H_
 
-#include "bat_helper.h"
 #include <string>
+#include "bat_helper.h"
 
 namespace bat_client {
   class BatClient;

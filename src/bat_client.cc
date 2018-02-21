@@ -3,13 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "bat_client.h"
-#include "static_values.h"
+
 #include <algorithm>
-#include "bat_helper.h"
+
 #include "base/bind.h"
 #include "base/guid.h"
 
 #include "anon.h"
+#include "bat_helper.h"
+#include "static_values.h"
 
 namespace bat_client {
 

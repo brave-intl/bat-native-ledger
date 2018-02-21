@@ -3,17 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "bat_client_webrequest.h"
-#include "url_fetcher.h"
-#include "url_request_context.h"
-#include "url_request_context_getter.h"
-#include "url_request_context_builder.h"
-#include "logging.h"
+
+#include "base/logging.h"
 #include "chrome/browser/browser_process.h"
-#include "browser_thread.h"
+#include "content/public/browser/browser_thread.h"
 #include "net/base/upload_data_stream.h"
 #include "net/base/upload_element_reader.h"
 #include "net/base/elements_upload_data_stream.h"
 #include "net/base/upload_bytes_element_reader.h"
+#include "net/url_request/url_fetcher.h"
+#include "net/url_request/url_request_context.h"
+#include "net/url_request/url_request_context_getter.h"
+#include "net/url_request/url_request_context_builder.h"
 
 namespace bat_client {
 

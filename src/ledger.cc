@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "ledger.h"
+
+#include "base/bind.h"
+#include "base/logging.h"
+
 #include "bat_client.h"
 #include "bat_publisher.h"
-#include "base/bind.h"
-
-#include "logging.h"
 
 
 using namespace bat_client;
