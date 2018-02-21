@@ -19,22 +19,24 @@ static_library("braveLedger") {
 
   include_dirs = [
     "src",
-    "//anonize2/anon",
-    "//anonize2/relic/include",
-    "//anonize2/relic/include/low",
+  ]
+
+  if (is_mac) {
+    include_dirs += [ "anon/macos_include" ]
+  }
+
+  include_dirs += [
+    "../bat-native-anonize/anon",
+    "../bat-native-anonize/relic/include",
+    "../bat-native-anonize/relic/include/low",
   ]
 
   deps = [
     "//base",
     "//net",
-    "//anonize2",
-  ]
-
-  include_dirs += [
-    "//base",
-    "//net/url_request",
+    "//third_party/leveldatabase",
     "//content/public/browser",
-    "//third_party/leveldatabase/src/include",
+    "../bat-native-anonize:anonize2",
   ]
 
   defines = [ "LEDGER_LIBRARY" ]
