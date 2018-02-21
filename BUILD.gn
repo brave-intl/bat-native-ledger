@@ -23,6 +23,10 @@ static_library("braveLedger") {
 
   if (is_mac) {
     include_dirs += [ "anon/macos_include" ]
+  } else if (is_linux && current_cpu == "x64") {
+    include_dirs += [ "anon/linux_x64_include" ]
+  } else if (is_linux && current_cpu == "x86") {
+    include_dirs += [ "anon/linux_x86_include" ]
   }
 
   include_dirs += [
