@@ -2,35 +2,33 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
+import("//build/config/features.gni")
 
 static_library("braveLedger") {
   sources = [
     "src/ledger.cc",
     "src/bat_client.cc",
-    "src/bat_client_webrequest.cc",
+    "src/bat_client_webrequest_chromium.cc",
     "src/bat_get_media.cc",
     "src/bat_helper.cc",
-    "src/bat_publisher.cc",
+    "src/bat_publishers.cc",
     "src/bat_balance.cc",
-    "src/tweetnacl.cc",
   ]
 
   include_dirs = [
     "src",
-    "//anonize2/anon",
-    "//anonize2/relic/include",
-    "//anonize2/relic/include/low",
-    "//bip39wally-core/include"
+    "//brave/anonize2/anon",
+    "//brave/anonize2/relic/include",
+    "//brave/anonize2/relic/include/low",
+    "//brave/bip39wally-core/include",
+    "//brave/bat-native-tweetnacl",
   ]
 
   deps = [
     "//base",
     "//net",
-    "//anonize2",
-    "//bip39wally-core",
+    "//brave/anonize2", 
+    "//brave/bat-native-tweetnacl:tweetnacl", 
     "//v8",
     "//net:net_utility_services",
     "//net:net_with_v8",
@@ -44,7 +42,9 @@ static_library("braveLedger") {
     "//content/public/browser",
     "//third_party/leveldatabase/src/include",
     "//v8",
+    "//brave/bat-native-rapidjson/include",
   ]
 
-  defines = [ "LEDGER_LIBRARY" ]
+  defines = [ "BRAVE_LEDGER_LIB" ]
+
 }
