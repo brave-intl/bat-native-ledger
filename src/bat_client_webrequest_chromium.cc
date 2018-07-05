@@ -85,7 +85,7 @@ namespace braveledger_bat_client_webrequest {
 
     LOG(ERROR) << "!!!web_request URL == " + url;
     content::BrowserThread::PostTask(
-      content::BrowserThread::UI, FROM_HERE,
+      content::BrowserThread::IO, FROM_HERE,
       base::Bind(&BatClientWebRequest::runOnThread,
           base::Unretained(this), url, callback, headers, content, contentType,
           extraData, method));
