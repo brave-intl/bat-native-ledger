@@ -96,6 +96,7 @@ class LedgerImpl : public ledger::Ledger,
   void OnBackground(uint32_t tab_id) override;
   void OnMediaStart(uint32_t tab_id) override;
   void OnMediaStop(uint32_t tab_id) override;
+  void OnIdleStateChanged(bool idle) override;
   void OnXHRLoad(uint32_t tab_id, const std::string& url) override;
 
   void initSynopsis();

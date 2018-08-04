@@ -49,6 +49,7 @@ class LEDGER_EXPORT Ledger {
   virtual void OnBackground(uint32_t tab_id) = 0;
   virtual void OnMediaStart(uint32_t tab_id) = 0;
   virtual void OnMediaStop(uint32_t tab_id) = 0;
+  virtual void OnIdleStateChanged(bool idle) = 0;
   virtual void OnXHRLoad(uint32_t tab_id, const std::string& url) = 0;
 
   virtual void SetPublisherInfo(std::unique_ptr<PublisherInfo> publisher_info,

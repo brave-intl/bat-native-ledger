@@ -66,6 +66,10 @@ void LedgerImpl::OnMediaStop(uint32_t tab_id) {
 
 }
 
+void LedgerImpl::OnIdleStateChanged(bool idle) {
+
+}
+
 void LedgerImpl::OnXHRLoad(uint32_t tab_id, const std::string& url) {
 
 }
