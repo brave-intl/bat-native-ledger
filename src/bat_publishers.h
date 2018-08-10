@@ -32,7 +32,7 @@ class BatPublishers : public ledger::LedgerCallbackHandler {
 
   ~BatPublishers() override;
 
-  void initSynopsis();
+  void loadState(const std::string& data);
 
   void saveVisit(const ledger::VisitData& visit_data, const uint64_t& duration);
 
@@ -54,8 +54,6 @@ class BatPublishers : public ledger::LedgerCallbackHandler {
 
  private:
   // LedgerCallbackHandler impl
-  void OnPublisherStateLoaded(ledger::Result result,
-                              const std::string& data) override;
   void OnPublisherStateSaved(ledger::Result result) override;
 
   bool isEligableForContribution(const ledger::PublisherInfo& info);
@@ -66,9 +64,6 @@ class BatPublishers : public ledger::LedgerCallbackHandler {
       uint64_t duration,
       ledger::Result result,
       std::unique_ptr<ledger::PublisherInfo> publisher_info);
-
-
-  void loadState(const std::string& data);
 
   double concaveScore(const uint64_t& duration);
 
