@@ -24,14 +24,24 @@ LedgerImpl::LedgerImpl(ledger::LedgerClient* client) :
     bat_client_(new BatClient(this)),
     bat_publishers_(new BatPublishers(this)),
     bat_get_media_(new BatGetMedia(this)),
-    last_tab_active_time_(0) {
+    initialized_(false),
+    last_tab_active_time_(0),
+    last_shown_tab_id_(0) {
 }
 
 LedgerImpl::~LedgerImpl() {
 }
 
-void LedgerImpl::CreateWallet() {
+void LedgerImpl::Initialize() {
   LoadPublisherState(this);
+}
+
+void LedgerImpl::CreateWallet() {
+  if (initialized_) {
+    OnWalletInitialized(ledger::Result::ERROR);
+    return;
+  }
+  bat_client_->registerPersona();
 }
 
 void LedgerImpl::OnLoad(const ledger::VisitData& visit_data) {
@@ -111,8 +121,10 @@ void LedgerImpl::LoadLedgerState(ledger::LedgerCallbackHandler* handler) {
 
 void LedgerImpl::OnLedgerStateLoaded(ledger::Result result,
                                         const std::string& data) {
-  bat_client_->loadStateCallback(
-      result == ledger::Result::OK, data);
+  if (result == ledger::Result::OK)
+    bat_client_->loadState(data);
+
+  OnWalletInitialized(result);
 }
 
 void LedgerImpl::LoadPublisherState(ledger::LedgerCallbackHandler* handler) {
@@ -122,10 +134,8 @@ void LedgerImpl::LoadPublisherState(ledger::LedgerCallbackHandler* handler) {
 void LedgerImpl::OnPublisherStateLoaded(ledger::Result result,
                                         const std::string& data) {
   if (result != ledger::Result::OK) {
-    bat_client_->registerPersona();
-    LOG(ERROR) << "Could not load publisher state";
+    OnWalletInitialized(result);
     return;
-    // TODO - error handling
   }
 
   bat_publishers_->loadState(data);
@@ -145,8 +155,10 @@ std::string LedgerImpl::GenerateGUID() const {
   return ledger_client_->GenerateGUID();
 }
 
-void LedgerImpl::OnWalletCreated(ledger::Result result) {
-  ledger_client_->OnWalletCreated(result);
+void LedgerImpl::OnWalletInitialized(ledger::Result result) {
+  if (result == ledger::Result::OK)
+    initialized_ = true;
+  ledger_client_->OnWalletInitialized(result);
 }
 
 std::unique_ptr<ledger::LedgerURLLoader> LedgerImpl::LoadURL(const std::string& url,

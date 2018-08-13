@@ -39,6 +39,7 @@ class LEDGER_EXPORT Ledger {
 
   static Ledger* CreateInstance(LedgerClient* client);
 
+  virtual void Initialize() = 0;
   virtual void CreateWallet() = 0;
   virtual void Reconcile() = 0;
 
