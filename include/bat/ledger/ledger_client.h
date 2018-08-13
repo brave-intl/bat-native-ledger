@@ -37,7 +37,7 @@ class LEDGER_EXPORT LedgerClient {
   virtual std::string GenerateGUID() const = 0;
   virtual void OnWalletCreated(Result result) = 0;
   virtual void GetWalletProperties() = 0;
-  virtual void OnWalletProperties(ledger::WalletInfo) = 0;
+  virtual void OnWalletProperties(const ledger::WalletInfo&) = 0;
   virtual void OnReconcileComplete(Result result,
                                    const std::string& viewing_id) = 0;
 
@@ -71,6 +71,8 @@ class LEDGER_EXPORT LedgerClient {
   // If any callbacks are made from inside RunIOTask you must use
   // RunTask to return back to the calling thread
   virtual void RunTask(std::unique_ptr<LedgerTaskRunner> task) = 0;
+  // Get current time in milliseconds
+  virtual uint64_t GetCurrentTime() = 0;
 };
 
 }  // namespace ledger

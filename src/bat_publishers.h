@@ -34,7 +34,7 @@ class BatPublishers : public ledger::LedgerCallbackHandler {
 
   void initSynopsis();
 
-  void saveVisit(const ledger::VisitData& visit_data);
+  void saveVisit(const ledger::VisitData& visit_data, const uint64_t& duration);
 
   void setPublisherMinVisitTime(const uint64_t& duration); // In milliseconds
 
@@ -63,6 +63,7 @@ class BatPublishers : public ledger::LedgerCallbackHandler {
   void saveVisitInternal(
       ledger::PublisherInfo::id_type publisher_id,
       ledger::VisitData visit_data,
+      uint64_t duration,
       ledger::Result result,
       std::unique_ptr<ledger::PublisherInfo> publisher_info);
 

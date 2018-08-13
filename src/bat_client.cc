@@ -273,9 +273,10 @@ void BatClient::reconcileCallback(bool result, const std::string& response) {
 void BatClient::currentReconcile() {
   std::ostringstream amount;
   amount << state_->fee_amount_;
-  std::string path = (std::string)WALLET_PROPERTIES + state_->walletInfo_.paymentId_ + "?refresh=true&amount=" + amount.str() + "&altcurrency=" + state_->fee_currency_;
+  std::string path = (std::string)WALLET_PROPERTIES + state_->walletInfo_.paymentId_ + "?amount=" + amount.str() + "&altcurrency=" + state_->fee_currency_;
 
-  auto request_id = ledger_->LoadURL(buildURL(path, ""),
+  LOG(ERROR) << "!!!currentReconcile path == " << path;
+  auto request_id = ledger_->LoadURL(buildURL(path, PREFIX_V2),
       std::vector<std::string>(), "", "",
       ledger::URL_METHOD::GET, &handler_);
   handler_.AddRequestHandler(std::move(request_id),
@@ -286,7 +287,7 @@ void BatClient::currentReconcile() {
 }
 
 void BatClient::currentReconcileCallback(bool result, const std::string& response) {
-  //LOG(ERROR) << "!!!currentReconcileCallback response == " << response;
+  LOG(ERROR) << "!!!currentReconcileCallback response == " << response;
   if (!result) {
     // TODO errors handling
     return;
@@ -350,7 +351,7 @@ void BatClient::currentReconcileCallback(bool result, const std::string& respons
 }
 
 void BatClient::reconcilePayloadCallback(bool result, const std::string& response) {
-  //LOG(ERROR) << "!!!response reconcilePayloadCallback == " << response;
+  LOG(ERROR) << "!!!response reconcilePayloadCallback == " << response;
   if (!result) {
     // TODO errors handling
     return;
@@ -904,6 +905,7 @@ void BatClient::recoverWallet(const std::string& passPhrase) {
   braveledger_bat_helper::getPublicKeyFromSeed(secretKey, publicKey, newSecretKey);
   std::string publicKeyHex = braveledger_bat_helper::uint8ToHex(publicKey);
 
+  //LOG(ERROR) << "!!!recover URL == " << buildURL((std::string)RECOVER_WALLET_PUBLIC_KEY + publicKeyHex, "");
   auto request_id = ledger_->LoadURL(buildURL((std::string)RECOVER_WALLET_PUBLIC_KEY + publicKeyHex, ""),
     std::vector<std::string>(), "", "",
     ledger::URL_METHOD::GET, &handler_);
@@ -916,7 +918,7 @@ void BatClient::recoverWallet(const std::string& passPhrase) {
 }
 
 void BatClient::recoverWalletPublicKeyCallback(bool result, const std::string& response) {
-  //LOG(ERROR) << "!!!recoverWalletPublicKeyCallback == " << response;
+  LOG(ERROR) << "!!!recoverWalletPublicKeyCallback == " << response;
   std::string recoveryId;
   braveledger_bat_helper::getJSONValue("paymentId", response, recoveryId);
 
