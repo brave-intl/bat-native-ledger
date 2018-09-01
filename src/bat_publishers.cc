@@ -370,9 +370,9 @@ bool BatPublishers::isVerified(const ledger::PublisherInfo::id_type& publisher_i
     return false;
   }
 
-  std::pair<bool, bool> values = publisher_lists_->server_list_[publisher_id];
+  const braveledger_bat_helper::PUBLISHER_SERVER_LIST values = publisher_lists_->server_list_[publisher_id];
 
-  return values.first;
+  return values.verified;
 }
 
 bool BatPublishers::isExcluded(const ledger::PublisherInfo::id_type& publisher_id) {
@@ -380,9 +380,9 @@ bool BatPublishers::isExcluded(const ledger::PublisherInfo::id_type& publisher_i
     return false;
   }
 
-  std::pair<bool, bool> values = publisher_lists_->server_list_[publisher_id];
+  const braveledger_bat_helper::PUBLISHER_SERVER_LIST values = publisher_lists_->server_list_[publisher_id];
 
-  return values.second;
+  return values.excluded;
 }
 
 bool BatPublishers::isEligableForContribution(const ledger::PublisherInfo& info) {
@@ -474,7 +474,7 @@ std::vector<ledger::ContributionInfo> BatPublishers::GetRecurringDonationList() 
 void BatPublishers::RefreshPublishersList(const std::string& json) {
   ledger_->SavePublishersList(json);
 
-  std::map<std::string, std::pair<bool, bool>> list;
+  std::map<std::string, braveledger_bat_helper::PUBLISHER_SERVER_LIST> list;
   bool success = braveledger_bat_helper::getJSONPublisherServerList(json, list);
 
   if (success) {

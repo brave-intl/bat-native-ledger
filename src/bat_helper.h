@@ -340,14 +340,19 @@ namespace braveledger_bat_helper {
     PUBLISHER
   };
 
+  struct PUBLISHER_SERVER_LIST {
+    bool verified;
+    bool excluded;
+  };
+
   struct PUBLISHER_LISTS_ST {
     PUBLISHER_LISTS_ST();
     ~PUBLISHER_LISTS_ST();
 
     //load from json string
-    bool loadFromJson(const std::string & json);
+    bool loadFromJson(const std::string& json);
 
-    std::map<std::string, std::pair<bool, bool>> server_list_;
+    std::map<std::string, PUBLISHER_SERVER_LIST> server_list_;
   };
 
   using GetMediaPublisherInfoSignature = void(uint64_t, const braveledger_bat_helper::MEDIA_PUBLISHER_INFO&);
@@ -378,7 +383,7 @@ namespace braveledger_bat_helper {
 
   bool getJSONResponse(const std::string& json, unsigned int& statusCode, std::string& error);
 
-  bool getJSONPublisherServerList(const std::string& json, std::map<std::string, std::pair<bool, bool>>& list);
+  bool getJSONPublisherServerList(const std::string& json, std::map<std::string, PUBLISHER_SERVER_LIST>& list);
 
   std::vector<uint8_t> generateSeed();
 

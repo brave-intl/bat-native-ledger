@@ -1469,7 +1469,7 @@ namespace braveledger_bat_helper {
     return !hasError;
   }
 
-  bool getJSONPublisherServerList(const std::string& json, std::map<std::string, std::pair<bool, bool>>& list) {
+  bool getJSONPublisherServerList(const std::string& json, std::map<std::string, PUBLISHER_SERVER_LIST>& list) {
     rapidjson::Document d;
     d.Parse(json.c_str());
 
@@ -1482,7 +1482,10 @@ namespace braveledger_bat_helper {
 
     if (hasError == false) {
       for (auto &i : d.GetArray()) {
-        list.emplace(i[0].GetString(), std::make_pair(i[1].GetBool(), i[2].GetBool()));
+        PUBLISHER_SERVER_LIST item;
+        item.verified = i[1].GetBool();
+        item.excluded = i[2].GetBool();
+        list.emplace(i[0].GetString(), item);
       }
     }
 
