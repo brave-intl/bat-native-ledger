@@ -36,7 +36,8 @@ namespace braveledger_bat_publishers {
 
 BatPublishers::BatPublishers(bat_ledger::LedgerImpl* ledger):
   ledger_(ledger),
-  state_(new braveledger_bat_helper::PUBLISHER_STATE_ST) {
+  state_(new braveledger_bat_helper::PUBLISHER_STATE_ST),
+  publisher_list_(std::make_unique<std::map<std::string, std::pair<bool, bool>>>()) {
   calcScoreConsts();
 }
 
@@ -176,11 +177,18 @@ void BatPublishers::saveVisitInternal(
     publisher_info.reset(new ledger::PublisherInfo(getPublisherID(visit_data),
                                                    visit_data.local_month,
                                                    visit_data.local_year));
+
+  if (isExcluded(publisher_info->id)) {
+    return;
+  }
+
+
   publisher_info->favIconURL = visit_data.favIconURL;
   publisher_info->duration += duration;
   publisher_info->visits += 1;
   publisher_info->category = ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE;
   publisher_info->score += concaveScore(duration);
+  publisher_info->verified = isVerified(publisher_info->id);
 
   ledger_->SetPublisherInfo(std::move(publisher_info),
       std::bind(&onVisitSavedDummy, _1, _2));
@@ -358,13 +366,36 @@ std::vector<braveledger_bat_helper::PUBLISHER_ST> BatPublishers::topN() {
 }
 
 bool BatPublishers::isVerified(const ledger::PublisherInfo::id_type& publisher_id) {
-  // TODO - implement bloom filter
-  return true;
+  if (!publisher_list_) {
+    return false;
+  }
+
+  if (publisher_list_->empty()) {
+    return false;
+  }
+
+  std::pair<bool, bool> values = publisher_list_->find(publisher_id)->second;
+
+  return values.first;
+}
+
+bool BatPublishers::isExcluded(const ledger::PublisherInfo::id_type& publisher_id) {
+  if (!publisher_list_) {
+    return false;
+  }
+
+  if (publisher_list_->empty()) {
+    return false;
+  }
+
+  std::pair<bool, bool> values = publisher_list_->find(publisher_id)->second;
+
+  return values.second;
 }
 
 bool BatPublishers::isEligableForContribution(const ledger::PublisherInfo& info) {
 
-  if (info.excluded || (!state_->allow_non_verified_ && !isVerified(info.id)))
+  if (!state_->allow_non_verified_ && !isVerified(info.id))
     return false;
 
   return info.score > 0 &&
@@ -448,8 +479,15 @@ std::vector<ledger::ContributionInfo> BatPublishers::GetRecurringDonationList() 
   return res;
 }
 
-void BatPublishers::RefreshPublishersList(const std::string & pubs_list) {
-  ledger_->SavePublishersList(pubs_list);
+void BatPublishers::RefreshPublishersList(const std::string& json) {
+  ledger_->SavePublishersList(json);
+
+  std::map<std::string, std::pair<bool, bool>> list;
+  bool success = braveledger_bat_helper::getJSONPublisherList(json, list);
+
+  if (success) {
+    publisher_list_ = std::make_unique<std::map<std::string, std::pair<bool, bool>>>(list);
+  }
 }
 
 void BatPublishers::OnPublishersListSaved(ledger::Result result) {

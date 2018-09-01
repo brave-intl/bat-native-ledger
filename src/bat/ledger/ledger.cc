@@ -89,10 +89,10 @@ PublisherInfo::PublisherInfo(const id_type& publisher_id,
     pinned(false),
     percent(0u),
     weight(.0),
-    excluded(false),
     category(PUBLISHER_CATEGORY::AUTO_CONTRIBUTE),
     month(_month),
-    year(_year) {}
+    year(_year),
+    verified(false) {}
 
 PublisherInfo::PublisherInfo(const PublisherInfo& info) :
     id(info.id),
@@ -102,11 +102,11 @@ PublisherInfo::PublisherInfo(const PublisherInfo& info) :
     pinned(info.pinned),
     percent(info.percent),
     weight(info.weight),
-    excluded(info.excluded),
     category(info.category),
     month(info.month),
     year(info.year),
     favIconURL(info.favIconURL),
+    verified(info.verified),
     contributions(info.contributions) {}
 
 PublisherInfo::~PublisherInfo() {}

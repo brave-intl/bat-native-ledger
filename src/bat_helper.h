@@ -368,6 +368,8 @@ namespace braveledger_bat_helper {
 
   bool getJSONResponse(const std::string& json, unsigned int& statusCode, std::string& error);
 
+  bool getJSONPublisherList(const std::string& json, std::map<std::string, std::pair<bool, bool>>& list);
+
   std::vector<uint8_t> generateSeed();
 
   std::vector<uint8_t> getHKDF(const std::vector<uint8_t>& seed);

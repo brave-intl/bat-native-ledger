@@ -1464,6 +1464,26 @@ namespace braveledger_bat_helper {
     return !hasError;
   }
 
+  bool getJSONPublisherList(const std::string& json, std::map<std::string, std::pair<bool, bool>>& list) {
+    rapidjson::Document d;
+    d.Parse(json.c_str());
+
+    bool hasError = d.HasParseError();
+    if (hasError == false) {
+      hasError = !d.IsArray();
+    }
+
+    list = {};
+
+    if (hasError == false) {
+      for (auto &i : d.GetArray()) {
+        list.emplace(i[0].GetString(), std::make_pair(i[1].GetBool(), i[2].GetBool()));
+      }
+    }
+
+    return !hasError;
+  }
+
   std::vector<uint8_t> generateSeed() {
     //std::ostringstream seedStr;
 
@@ -1867,5 +1887,4 @@ namespace braveledger_bat_helper {
 
     return url + prefix + path;
   }
-
 }  // namespace braveledger_bat_helper

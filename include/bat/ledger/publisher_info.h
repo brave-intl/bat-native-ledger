@@ -75,11 +75,11 @@ LEDGER_EXPORT struct PublisherInfo {
   bool pinned;
   uint32_t percent;
   double weight;
-  bool excluded;
   PUBLISHER_CATEGORY category;
   PUBLISHER_MONTH month;
   int year;
   std::string favIconURL;
+  bool verified;
 
   std::vector<ContributionInfo> contributions;
 };
