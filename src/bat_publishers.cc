@@ -37,7 +37,7 @@ namespace braveledger_bat_publishers {
 BatPublishers::BatPublishers(bat_ledger::LedgerImpl* ledger):
   ledger_(ledger),
   state_(new braveledger_bat_helper::PUBLISHER_STATE_ST),
-  publisher_list_(std::make_unique<std::map<std::string, std::pair<bool, bool>>>()) {
+  publisher_lists_(new braveledger_bat_helper::PUBLISHER_LISTS_ST) {
   calcScoreConsts();
 }
 
@@ -366,29 +366,21 @@ std::vector<braveledger_bat_helper::PUBLISHER_ST> BatPublishers::topN() {
 }
 
 bool BatPublishers::isVerified(const ledger::PublisherInfo::id_type& publisher_id) {
-  if (!publisher_list_) {
+  if (!publisher_lists_ || publisher_lists_->server_list_.empty()) {
     return false;
   }
 
-  if (publisher_list_->empty()) {
-    return false;
-  }
-
-  std::pair<bool, bool> values = publisher_list_->find(publisher_id)->second;
+  std::pair<bool, bool> values = publisher_lists_->server_list_[publisher_id];
 
   return values.first;
 }
 
 bool BatPublishers::isExcluded(const ledger::PublisherInfo::id_type& publisher_id) {
-  if (!publisher_list_) {
+  if (!publisher_lists_ || publisher_lists_->server_list_.empty()) {
     return false;
   }
 
-  if (publisher_list_->empty()) {
-    return false;
-  }
-
-  std::pair<bool, bool> values = publisher_list_->find(publisher_id)->second;
+  std::pair<bool, bool> values = publisher_lists_->server_list_[publisher_id];
 
   return values.second;
 }
@@ -483,10 +475,10 @@ void BatPublishers::RefreshPublishersList(const std::string& json) {
   ledger_->SavePublishersList(json);
 
   std::map<std::string, std::pair<bool, bool>> list;
-  bool success = braveledger_bat_helper::getJSONPublisherList(json, list);
+  bool success = braveledger_bat_helper::getJSONPublisherServerList(json, list);
 
   if (success) {
-    publisher_list_ = std::make_unique<std::map<std::string, std::pair<bool, bool>>>(list);
+    publisher_lists_->server_list_ = list;
   }
 }
 

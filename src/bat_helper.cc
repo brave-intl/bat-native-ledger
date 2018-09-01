@@ -1179,6 +1179,11 @@ namespace braveledger_bat_helper {
   BATCH_PROOF::~BATCH_PROOF() {}
 
 /////////////////////////////////////////////////////////////////////////////
+  PUBLISHER_LISTS_ST::PUBLISHER_LISTS_ST() {}
+
+  PUBLISHER_LISTS_ST::~PUBLISHER_LISTS_ST() {}
+
+  /////////////////////////////////////////////////////////////////////////////
   void split(std::vector<std::string>& tmp, std::string query, char delimiter) {
     std::stringstream ss(query);
     std::string item;
@@ -1464,7 +1469,7 @@ namespace braveledger_bat_helper {
     return !hasError;
   }
 
-  bool getJSONPublisherList(const std::string& json, std::map<std::string, std::pair<bool, bool>>& list) {
+  bool getJSONPublisherServerList(const std::string& json, std::map<std::string, std::pair<bool, bool>>& list) {
     rapidjson::Document d;
     d.Parse(json.c_str());
 
