@@ -487,4 +487,44 @@ void BatPublishers::OnPublishersListSaved(ledger::Result result) {
   setPublishersLastRefreshTimestamp(ts);
 }
 
+std::map<std::string, braveledger_bat_helper::PUBLISHER_DELETED_LIST> BatPublishers::deletePublisher(const std::string& publisher_id,
+                                    const std::string& url,
+                                    const std::string& name) {
+  if (publisher_id.empty()) {
+    return publisher_lists_->deleted_list_;
+  }
+
+  braveledger_bat_helper::PUBLISHER_DELETED_LIST list;
+  list.id = publisher_id;
+  list.name = name;
+  list.url = url;
+
+  publisher_lists_->deleted_list_.emplace(publisher_id, list);
+  return publisher_lists_->deleted_list_;
+}
+
+void BatPublishers::restorePublisher(const std::string& publisher_id) {
+  if (publisher_id.empty()) {
+    return;
+  }
+
+  auto begin = publisher_lists_->deleted_list_.begin();
+  auto end = publisher_lists_->deleted_list_.end();
+  auto it = std::find(begin, end, publisher_id);
+
+  if (it != end) {
+    auto index = std::distance(begin, it);
+    publisher_lists_->deleted_list_.erase(begin, begin + index);
+  }
+}
+
+bool BatPublishers::isDeleted(const std::string& publisher_id) {
+  if (publisher_id.empty()) {
+    return false;
+  }
+
+  auto it = std::find(publisher_lists_->deleted_list_.begin(), publisher_lists_->deleted_list_.end(), publisher_id);
+  return it != publisher_lists_->deleted_list_.end();
+}
+
 }  // namespace braveledger_bat_publisher

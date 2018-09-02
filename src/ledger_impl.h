@@ -179,6 +179,12 @@ class LedgerImpl : public ledger::Ledger,
 
   void RefreshPublishersList(bool retryAfterError);
 
+  std::map<std::string, braveledger_bat_helper::PUBLISHER_DELETED_LIST> DeletePublisher(
+      const std::string& publisher_id,
+      const std::string& url,
+      const std::string& name) override;
+  void RestorePublisher(const std::string& publisher_id) const override;
+
 
   ledger::LedgerClient* ledger_client_;
   std::unique_ptr<braveledger_bat_client::BatClient> bat_client_;
