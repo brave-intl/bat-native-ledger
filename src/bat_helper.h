@@ -345,6 +345,12 @@ namespace braveledger_bat_helper {
     bool excluded;
   };
 
+  struct PUBLISHER_DELETED_LIST {
+    std::string id;
+    std::string url;
+    std::string name;
+  };
+
   struct PUBLISHER_LISTS_ST {
     PUBLISHER_LISTS_ST();
     ~PUBLISHER_LISTS_ST();
@@ -353,6 +359,7 @@ namespace braveledger_bat_helper {
     bool loadFromJson(const std::string& json);
 
     std::map<std::string, PUBLISHER_SERVER_LIST> server_list_;
+    std::map<std::string, PUBLISHER_DELETED_LIST> deleted_list_;
   };
 
   using GetMediaPublisherInfoSignature = void(uint64_t, const braveledger_bat_helper::MEDIA_PUBLISHER_INFO&);

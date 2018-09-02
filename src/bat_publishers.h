@@ -74,6 +74,15 @@ class BatPublishers : public ledger::LedgerCallbackHandler {
 
   void OnPublishersListSaved(ledger::Result result) override;
 
+  std::map<std::string, braveledger_bat_helper::PUBLISHER_DELETED_LIST> deletePublisher(
+      const std::string& publisher_id,
+      const std::string& url,
+      const std::string& name);
+
+  void restorePublisher(const std::string& publisher_id);
+
+  bool isDeleted(const std::string& publisher_id);
+
  private:
   ledger::PublisherInfoFilter CreatePublisherFilter(
       const std::string& publisher_id,

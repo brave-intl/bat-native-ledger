@@ -55,6 +55,12 @@ LEDGER_EXPORT struct PaymentData {
   int local_year;
 };
 
+LEDGER_EXPORT struct DeletedList {
+  std::string id;
+  std::string url;
+  std::string name;
+};
+
 
 class LEDGER_EXPORT Ledger {
  public:
@@ -148,6 +154,8 @@ class LEDGER_EXPORT Ledger {
 
   virtual void RecoverWallet(const std::string& passPhrase) const = 0;
   virtual void SaveMediaVisit(const ledger::VisitData& visit_data, const uint64_t& duration) = 0;
+  virtual std::map<std::string, ledger::DeletedList> DeletePublisher(const std::string& publisher_id, const std::string& url, const std::string& name) = 0;
+  virtual void RestorePublisher(const std::string& publisher_id) const = 0;
 };
 
 }  // namespace ledger

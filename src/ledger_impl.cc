@@ -576,4 +576,14 @@ void LedgerImpl::OnPublishersListSaved(ledger::Result result) {
   RefreshPublishersList(retryAfterError);
 }
 
+std::map<std::string, braveledger_bat_helper::PUBLISHER_DELETED_LIST> LedgerImpl::DeletePublisher(const std::string& publisher_id,
+                                 const std::string& url,
+                                 const std::string& name) {
+  bat_publishers_->deletePublisher(publisher_id, url, name);
+}
+
+void LedgerImpl::RestorePublisher(const std::string& publisher_id) const {
+  bat_publishers_->restorePublisher(publisher_id);
+}
+
 }  // namespace bat_ledger
