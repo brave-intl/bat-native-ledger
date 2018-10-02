@@ -212,6 +212,7 @@ class LedgerImpl : public ledger::Ledger,
   uint64_t last_tab_active_time_;
   uint32_t last_shown_tab_id_;
   uint32_t last_pub_load_timer_id_;
+  bool publisher_state_loaded_;
  };
 }  // namespace bat_ledger
 

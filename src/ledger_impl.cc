@@ -31,7 +31,8 @@ LedgerImpl::LedgerImpl(ledger::LedgerClient* client) :
     initializing_(false),
     last_tab_active_time_(0),
     last_shown_tab_id_(-1),
-    last_pub_load_timer_id_ (0u){
+    last_pub_load_timer_id_ (0u),
+    publisher_state_loaded_(false){
 }
 
 LedgerImpl::~LedgerImpl() {
@@ -194,8 +195,8 @@ void LedgerImpl::OnPublisherStateLoaded(ledger::Result result,
     }
   }
 
+  publisher_state_loaded_ = true;
   OnWalletInitialized(result);
-  RefreshPublishersList(false);
 }
 
 void LedgerImpl::SaveLedgerState(const std::string& data) {
@@ -235,6 +236,10 @@ void LedgerImpl::OnWalletInitialized(ledger::Result result) {
 
   if (result == ledger::Result::LEDGER_OK) {
     initialized_ = true;
+
+    if (publisher_state_loaded_) {
+      RefreshPublishersList(false);
+    }
   }
 }
 
