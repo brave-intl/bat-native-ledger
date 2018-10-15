@@ -525,6 +525,8 @@ void LedgerImpl::OnGrant(ledger::Result result, const braveledger_bat_helper::GR
   ledger::Grant grant;
 
   grant.promotionId = properties.promotionId;
+  grant.probi = properties.probi;
+  grant.expiryTime = properties.expiryTime;
 
   ledger_client_->OnGrant(result, grant);
 }
