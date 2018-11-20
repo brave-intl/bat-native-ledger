@@ -1567,6 +1567,44 @@ static bool ignore_ = false;
 
   SERVER_LIST_BANNER::~SERVER_LIST_BANNER() {}
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  INFORMATION_STATE_ST::INFORMATION_STATE_ST():
+    payment_id("") {}
+
+  INFORMATION_STATE_ST::INFORMATION_STATE_ST(const INFORMATION_STATE_ST& state) {
+    payment_id = state.payment_id;
+  }
+
+  INFORMATION_STATE_ST::~INFORMATION_STATE_ST() {}
+
+  auto INFORMATION_STATE_ST::loadFromJson(const std::string& json) {
+    rapidjson::Document information;
+    information.Parse(json.c_str());
+
+    auto success = information.HasParseError();
+    if (!success) {
+      return;
+    }
+
+    success = information.HasMember("min_pubslisher_duration") &&
+      information["payment_id"].IsString();
+    if (!success) {
+      return;
+    }
+
+    payment_id = information["payment_id"].GetString();
+  }
+
+  void saveToJson(JsonWriter & writer, const INFORMATION_STATE_ST& state) {
+    writer.StartObject();
+
+    writer.String("payment_id");
+    writer.Uint(state.payment_id);
+
+    writer.EndObject();
+  }
+
 /////////////////////////////////////////////////////////////////////////////
   void split(std::vector<std::string>& tmp, std::string query, char delimiter) {
     std::stringstream ss(query);

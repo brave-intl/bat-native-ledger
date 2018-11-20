@@ -24,6 +24,7 @@ struct TRANSACTION_BALLOT_ST;
 struct TRANSACTION_ST;
 struct TWITCH_EVENT_INFO;
 struct WALLET_INFO_ST;
+struct INFORMATION_STATE_ST;
 
 using JsonWriter = rapidjson::Writer<rapidjson::StringBuffer>;
 
@@ -39,6 +40,7 @@ void saveToJson(JsonWriter & writer, const TRANSACTION_BALLOT_ST&);
 void saveToJson(JsonWriter & writer, const TRANSACTION_ST&);
 void saveToJson(JsonWriter & writer, const TWITCH_EVENT_INFO&);
 void saveToJson(JsonWriter & writer, const WALLET_INFO_ST&);
+void saveToJson(JsonWriter & writer, const INFORMATION_STATE_ST&);
 
 template <typename T>
 void saveToJsonString(const T& t, std::string& json) {
