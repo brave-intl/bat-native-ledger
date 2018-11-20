@@ -164,6 +164,7 @@ class LedgerImpl : public ledger::Ledger,
     const ledger::PUBLISHER_EXCLUDE& exclude, uint64_t windowId) override;
 
   void RestorePublishers() override;
+  void OnRestorePublishers(ledger::OnRestoreCallback callback);
   bool IsWalletCreated() const override;
   void GetPublisherActivityFromUrl(uint64_t windowId, const ledger::VisitData& visit_data) override;
   void GetMediaActivityFromUrl(uint64_t windowId,

@@ -55,6 +55,7 @@ using GetNicewareListCallback =
 using RecurringDonationCallback = std::function<void(const PublisherInfoList&)>;
 using RecurringRemoveCallback = std::function<void(Result)>;
 using FetchIconCallback = std::function<void(bool, const std::string&)>;
+using OnRestoreCallback = std::function<void(bool)>;
 
 class LEDGER_EXPORT LedgerClient {
  public:
@@ -153,6 +154,7 @@ class LEDGER_EXPORT LedgerClient {
       const char* file,
       int line,
       const ledger::LogLevel log_level) const = 0;
+  virtual void OnRestorePublishers(ledger::OnRestoreCallback callback) = 0;
 };
 
 }  // namespace ledger

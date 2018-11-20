@@ -350,7 +350,11 @@ void LedgerImpl::SetPublisherPanelExclude(const std::string& publisher_id,
 }
 
 void LedgerImpl::RestorePublishers() {
-  bat_publishers_->restorePublishers();
+  bat_publishers_->RestorePublishers();
+}
+
+void LedgerImpl::OnRestorePublishers(ledger::OnRestoreCallback callback) {
+  ledger_client_->OnRestorePublishers(callback);
 }
 
 void LedgerImpl::LoadNicewareList(ledger::GetNicewareListCallback callback) {

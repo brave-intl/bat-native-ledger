@@ -372,28 +372,21 @@ void BatPublishers::onSetPanelExcludeInternal(ledger::PUBLISHER_EXCLUDE exclude,
   OnExcludedSitesChanged(publisherKey);
 }
 
-// TODO refactor
-void BatPublishers::restorePublishers() {
-  uint64_t currentReconcileStamp = ledger_->GetReconcileStamp();
-  auto filter = CreateActivityFilter("",
-      ledger::ACTIVITY_MONTH::ANY,
-      -1,
-      ledger::EXCLUDE_FILTER::FILTER_EXCLUDED,
-      false,
-      currentReconcileStamp);
-  ledger_->GetActivityInfoList(0, 0, filter, std::bind(&BatPublishers::onRestorePublishersInternal,
-                                this, _1, _2));
+void BatPublishers::RestorePublishers() {
+  ledger_->OnRestorePublishers(
+      std::bind(&BatPublishers::OnRestorePublishersInternal,
+                this,
+                _1));
 }
 
-void BatPublishers::onRestorePublishersInternal(const ledger::PublisherInfoList& publisherInfoList, uint32_t /* next_record */) {
-  if (publisherInfoList.size() == 0) {
-    return;
-  }
-
-  for (size_t i = 0; i < publisherInfoList.size(); i++) {
-    // Set to PUBLISHER_EXCLUDE::DEFAULT (0)
-    setExclude(publisherInfoList[i].id,
-               ledger::PUBLISHER_EXCLUDE::DEFAULT);
+void BatPublishers::OnRestorePublishersInternal(bool success) {
+  if (success) {
+    setNumExcludedSites(0);
+    OnExcludedSitesChanged();
+  } else {
+    ledger_->Log(__func__,
+                 ledger::LogLevel::LOG_ERROR,
+                 {"Could not restore publishers."});
   }
 }
 
