@@ -76,8 +76,7 @@ void BatPublishers::AddRecurringPayment(const std::string& publisher_id, const d
 }
 
 void BatPublishers::MakePayment(const ledger::PaymentData& payment_data) {
-  auto filter = CreatePublisherFilter(payment_data.publisher_id,
-                                      payment_data.category,
+  auto filter = CreateActivityFilter(payment_data.publisher_id,
                                       payment_data.local_month,
                                       payment_data.local_year);
   ledger_->GetActivityInfo(filter,
@@ -101,11 +100,10 @@ void BatPublishers::saveVisit(const std::string& publisher_id,
     return;
   }
 
-  auto filter = CreatePublisherFilter(publisher_id,
-      ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
+  auto filter = CreateActivityFilter(publisher_id,
       visit_data.local_month,
       visit_data.local_year,
-      ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL,
+      ledger::EXCLUDE_FILTER::FILTER_ALL,
       false,
       ledger_->GetReconcileStamp());
 
@@ -119,28 +117,24 @@ void BatPublishers::saveVisit(const std::string& publisher_id,
   ledger_->GetActivityInfo(filter, callbackGetPublishers);
 }
 
-ledger::PublisherInfoFilter BatPublishers::CreatePublisherFilter(
+ledger::ActivityInfoFilter BatPublishers::CreateActivityFilter(
     const std::string &publisher_id,
-    ledger::PUBLISHER_CATEGORY category,
-    ledger::PUBLISHER_MONTH month,
+    ledger::ACTIVITY_MONTH month,
     int year) {
-  return CreatePublisherFilter(publisher_id,
-                               category,
+  return CreateActivityFilter(publisher_id,
                                month,
                                year,
-                               ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL,
+                               ledger::EXCLUDE_FILTER::FILTER_ALL,
                                true,
                                0);
 }
 
-ledger::PublisherInfoFilter BatPublishers::CreatePublisherFilter(
+ledger::ActivityInfoFilter BatPublishers::CreateActivityFilter(
     const std::string& publisher_id,
-    ledger::PUBLISHER_CATEGORY category,
-    ledger::PUBLISHER_MONTH month,
+    ledger::ACTIVITY_MONTH month,
     int year,
-    ledger::PUBLISHER_EXCLUDE_FILTER excluded) {
-  return CreatePublisherFilter(publisher_id,
-                               category,
+    ledger::EXCLUDE_FILTER excluded) {
+  return CreateActivityFilter(publisher_id,
                                month,
                                year,
                                excluded,
@@ -148,32 +142,28 @@ ledger::PublisherInfoFilter BatPublishers::CreatePublisherFilter(
                                0);
 }
 
-ledger::PublisherInfoFilter BatPublishers::CreatePublisherFilter(
+ledger::ActivityInfoFilter BatPublishers::CreateActivityFilter(
     const std::string &publisher_id,
-    ledger::PUBLISHER_CATEGORY category,
-    ledger::PUBLISHER_MONTH month,
+    ledger::ACTIVITY_MONTH month,
     int year,
     bool min_duration) {
-  return CreatePublisherFilter(publisher_id,
-                               category,
+  return CreateActivityFilter(publisher_id,
                                month,
                                year,
-                               ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL,
+                               ledger::EXCLUDE_FILTER::FILTER_ALL,
                                min_duration,
                                0);
 }
 
-ledger::PublisherInfoFilter BatPublishers::CreatePublisherFilter(
+ledger::ActivityInfoFilter BatPublishers::CreateActivityFilter(
     const std::string& publisher_id,
-    ledger::PUBLISHER_CATEGORY category,
-    ledger::PUBLISHER_MONTH month,
+    ledger::ACTIVITY_MONTH month,
     int year,
-    ledger::PUBLISHER_EXCLUDE_FILTER excluded,
+    ledger::EXCLUDE_FILTER excluded,
     bool min_duration,
     const uint64_t& currentReconcileStamp) {
-  ledger::PublisherInfoFilter filter;
+  ledger::ActivityInfoFilter filter;
   filter.id = publisher_id;
-  filter.category = category;
   filter.month = month;
   filter.year = year;
   filter.excluded = excluded;
@@ -184,7 +174,7 @@ ledger::PublisherInfoFilter BatPublishers::CreatePublisherFilter(
 }
 
 std::string BatPublishers::GetBalanceReportName(
-    const ledger::PUBLISHER_MONTH month,
+    const ledger::ACTIVITY_MONTH month,
     int year) {
   return std::to_string(year) + "_" + std::to_string(month);
 }
@@ -247,7 +237,6 @@ void BatPublishers::saveVisitInternal(
   publisher_info->provider = visit_data.provider;
   publisher_info->url = visit_data.url;
   publisher_info->visits += 1;
-  publisher_info->category = ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE;
   if (!isExcluded(publisher_info->id, publisher_info->excluded)) {
     publisher_info->duration += duration;
   } else {
@@ -321,14 +310,12 @@ void BatPublishers::onSetExcludeInternal(ledger::PUBLISHER_EXCLUDE exclude,
     return;
   }
 
-  publisher_info->year = -1;
   if (publisher_info->excluded == ledger::PUBLISHER_EXCLUDE::DEFAULT ||
       publisher_info->excluded == ledger::PUBLISHER_EXCLUDE::INCLUDED) {
     publisher_info->excluded = ledger::PUBLISHER_EXCLUDE::EXCLUDED;
   } else {
     publisher_info->excluded = ledger::PUBLISHER_EXCLUDE::INCLUDED;
   }
-  publisher_info->month = ledger::PUBLISHER_MONTH::ANY;
   setNumExcludedSitesInternal(exclude);
 
   std::string publisherKey = publisher_info->id;
@@ -364,14 +351,12 @@ void BatPublishers::onSetPanelExcludeInternal(ledger::PUBLISHER_EXCLUDE exclude,
     return;
   }
 
-  publisher_info->year = -1;
   if (publisher_info->excluded == ledger::PUBLISHER_EXCLUDE::DEFAULT ||
       publisher_info->excluded == ledger::PUBLISHER_EXCLUDE::INCLUDED) {
     publisher_info->excluded = ledger::PUBLISHER_EXCLUDE::EXCLUDED;
   } else {
     publisher_info->excluded = ledger::PUBLISHER_EXCLUDE::INCLUDED;
   }
-  publisher_info->month = ledger::PUBLISHER_MONTH::ANY;
   setNumExcludedSitesInternal(exclude);
 
   ledger::VisitData visit_data;
@@ -389,11 +374,10 @@ void BatPublishers::onSetPanelExcludeInternal(ledger::PUBLISHER_EXCLUDE exclude,
 
 void BatPublishers::restorePublishers() {
   uint64_t currentReconcileStamp = ledger_->GetReconcileStamp();
-  auto filter = CreatePublisherFilter("",
-      ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
-      ledger::PUBLISHER_MONTH::ANY,
+  auto filter = CreateActivityFilter("",
+      ledger::ACTIVITY_MONTH::ANY,
       -1,
-      ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_EXCLUDED,
+      ledger::EXCLUDE_FILTER::FILTER_EXCLUDED,
       false,
       currentReconcileStamp);
   ledger_->GetPublisherInfoList(0, 0, filter, std::bind(&BatPublishers::onRestorePublishersInternal,
@@ -557,11 +541,10 @@ void BatPublishers::synopsisNormalizerInternal(ledger::PublisherInfoList* newLis
 }
 
 void BatPublishers::synopsisNormalizer(const ledger::PublisherInfo& info) {
-  auto filter = CreatePublisherFilter("",
-      ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
+  auto filter = CreateActivityFilter("",
       info.month,
       info.year,
-      ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL_EXCEPT_EXCLUDED,
+      ledger::EXCLUDE_FILTER::FILTER_ALL_EXCEPT_EXCLUDED,
       true,
       ledger_->GetReconcileStamp());
   // TODO SZ: We pull the whole list currently, I don't think it consumes lots of RAM, but could.
@@ -630,7 +613,7 @@ void BatPublishers::clearAllBalanceReports() {
   saveState();
 }
 
-void BatPublishers::setBalanceReport(ledger::PUBLISHER_MONTH month,
+void BatPublishers::setBalanceReport(ledger::ACTIVITY_MONTH month,
                                 int year,
                                 const ledger::BalanceReportInfo& report_info) {
   braveledger_bat_helper::REPORT_BALANCE_ST report_balance;
@@ -656,7 +639,7 @@ void BatPublishers::setBalanceReport(ledger::PUBLISHER_MONTH month,
   saveState();
 }
 
-bool BatPublishers::getBalanceReport(ledger::PUBLISHER_MONTH month,
+bool BatPublishers::getBalanceReport(ledger::ACTIVITY_MONTH month,
                                      int year,
                                      ledger::BalanceReportInfo* report_info) {
   std::string name = GetBalanceReportName(month, year);
@@ -789,11 +772,10 @@ void BatPublishers::getPublisherActivityFromUrl(uint64_t windowId, const ledger:
     return;
   }
 
-  auto filter = CreatePublisherFilter(visit_data.domain,
-        ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
+  auto filter = CreateActivityFilter(visit_data.domain,
         visit_data.local_month,
         visit_data.local_year,
-        ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL,
+        ledger::EXCLUDE_FILTER::FILTER_ALL,
         false,
         ledger_->GetReconcileStamp());
 
@@ -832,7 +814,7 @@ void BatPublishers::OnExcludedSitesChanged(const std::string& publisher_id) {
   ledger_->OnExcludedSitesChanged(publisher_id);
 }
 
-void BatPublishers::setBalanceReportItem(ledger::PUBLISHER_MONTH month,
+void BatPublishers::setBalanceReportItem(ledger::ACTIVITY_MONTH month,
                                          int year,
                                          ledger::ReportType type,
                                          const std::string& probi) {

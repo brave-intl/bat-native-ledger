@@ -68,7 +68,7 @@ class LEDGER_EXPORT LedgerClient {
                                   std::unique_ptr<ledger::WalletInfo>) = 0;
   virtual void OnReconcileComplete(Result result,
                                    const std::string& viewing_id,
-                                   ledger::PUBLISHER_CATEGORY category,
+                                   ledger::REWARDS_CATEGORY category,
                                    const std::string& probi) = 0;
 
   virtual void LoadLedgerState(LedgerCallbackHandler* handler) = 0;
@@ -92,17 +92,17 @@ class LEDGER_EXPORT LedgerClient {
                                 PublisherInfoCallback callback) = 0;
   virtual void LoadPublisherInfo(const std::string& publisher_key,
                                  PublisherInfoCallback callback) = 0;
-  virtual void LoadActivityInfo(PublisherInfoFilter filter,
+  virtual void LoadActivityInfo(ActivityInfoFilter filter,
                                 PublisherInfoCallback callback) = 0;
   virtual void LoadMediaPublisherInfo(const std::string& media_key,
                                 PublisherInfoCallback callback) = 0;
   virtual void SaveMediaPublisherInfo(const std::string& media_key,
                                 const std::string& publisher_id) = 0;
   virtual void LoadPublisherInfoList(uint32_t start, uint32_t limit,
-                                    PublisherInfoFilter filter,
+                                    ActivityInfoFilter filter,
                                     PublisherInfoListCallback callback) = 0;
   virtual void LoadCurrentPublisherInfoList(uint32_t start, uint32_t limit,
-                                    PublisherInfoFilter filter,
+                                    ActivityInfoFilter filter,
                                     PublisherInfoListCallback callback) = 0;
 
   // TODO this can be removed
@@ -124,7 +124,7 @@ class LEDGER_EXPORT LedgerClient {
                                     const int year,
                                     const uint32_t date,
                                     const std::string& publisher_key,
-                                    const ledger::PUBLISHER_CATEGORY category) = 0;
+                                    const ledger::REWARDS_CATEGORY category) = 0;
   virtual void GetRecurringDonations(ledger::PublisherInfoListCallback callback) = 0;
   virtual void OnRemoveRecurring(const std::string& publisher_key,
                                  ledger::RecurringRemoveCallback callback) = 0;

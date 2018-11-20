@@ -647,12 +647,11 @@ void BatGetMedia::fetchPublisherDataFromDB(uint64_t windowId,
                                            const ledger::VisitData& visit_data,
                                            const std::string& providerType,
                                            const std::string& publisher_key) {
-    auto filter = ledger_->CreatePublisherFilter(
+    auto filter = ledger_->CreateActivityFilter(
       publisher_key,
-      ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
       visit_data.local_month,
       visit_data.local_year,
-      ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL,
+      ledger::EXCLUDE_FILTER::FILTER_ALL,
       false,
       ledger_->GetReconcileStamp());
     ledger_->GetActivityInfo(filter,
