@@ -213,8 +213,8 @@ void BatPublishers::makePaymentInternal(
 
   publisher_info->contributions.push_back(ledger::ContributionInfo(payment_data.value, payment_data.timestamp));
 
-  ledger_->SetPublisherInfo(std::move(publisher_info),
-      std::bind(&onVisitSavedDummy, _1, _2));
+  ledger_->SetActivityInfo(std::move(publisher_info),
+                           std::bind(&onVisitSavedDummy, _1, _2));
 }
 
 void BatPublishers::saveVisitInternal(
@@ -262,7 +262,8 @@ void BatPublishers::saveVisitInternal(
 
   auto media_info = std::make_unique<ledger::PublisherInfo>(*publisher_info);
 
-  ledger_->SetPublisherInfo(std::move(publisher_info), std::bind(&onVisitSavedDummy, _1, _2));
+  ledger_->SetActivityInfo(std::move(publisher_info),
+                           std::bind(&onVisitSavedDummy, _1, _2));
 
   if (window_id > 0) {
     onPublisherActivity(ledger::Result::LEDGER_OK, std::move(media_info), window_id, visit_data);
@@ -333,7 +334,10 @@ void BatPublishers::onSetExcludeInternal(ledger::PUBLISHER_EXCLUDE exclude,
   std::string publisherKey = publisher_info->id;
 
   ledger_->SetPublisherInfo(std::move(publisher_info),
-    std::bind(&BatPublishers::onSetPublisherInfo, this, _1, _2));
+                           std::bind(&BatPublishers::onSetPublisherInfo,
+                                     this,
+                                     _1,
+                                     _2));
 
   OnExcludedSitesChanged(publisherKey);
 }
@@ -374,9 +378,12 @@ void BatPublishers::onSetPanelExcludeInternal(ledger::PUBLISHER_EXCLUDE exclude,
   std::string publisherKey = publisher_info->id;
 
   ledger_->SetPublisherInfo(std::move(publisher_info),
-      std::bind(&BatPublishers::onPublisherActivity, this, _1, _2,
-      windowId, visit_data));
-
+                           std::bind(&BatPublishers::onPublisherActivity,
+                                     this,
+                                     _1,
+                                     _2,
+                                     windowId,
+                                     visit_data));
   OnExcludedSitesChanged(publisherKey);
 }
 
@@ -538,8 +545,10 @@ void BatPublishers::synopsisNormalizerInternal(ledger::PublisherInfoList* newLis
     if (saveData) {
       std::unique_ptr<ledger::PublisherInfo> publisher_info;
       publisher_info.reset(new ledger::PublisherInfo(list[i]));
-      ledger_->SetPublisherInfo(std::move(publisher_info),
-        std::bind(&onVisitSavedDummy, _1, _2));
+      ledger_->SetActivityInfo(std::move(publisher_info),
+                               std::bind(&onVisitSavedDummy,
+                                         _1,
+                                         _2));
     }
     if (newList) {
       newList->push_back(list[i]);

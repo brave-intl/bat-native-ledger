@@ -309,7 +309,18 @@ std::string LedgerImpl::URIEncode(const std::string& value) {
 
 void LedgerImpl::SetPublisherInfo(std::unique_ptr<ledger::PublisherInfo> info,
                                   ledger::PublisherInfoCallback callback) {
-  ledger_client_->SavePublisherInfo(std::move(info),
+  ledger_client_->SavePublisherInfo(
+      std::move(info),
+      std::bind(&LedgerImpl::OnSetPublisherInfo,
+                this,
+                callback,
+                _1,
+                _2));
+}
+
+void LedgerImpl::SetActivityInfo(std::unique_ptr<ledger::PublisherInfo> info,
+                                  ledger::PublisherInfoCallback callback) {
+  ledger_client_->SaveActivityInfo(std::move(info),
       std::bind(&LedgerImpl::OnSetPublisherInfo, this, callback, _1, _2));
 }
 

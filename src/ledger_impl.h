@@ -59,6 +59,8 @@ class LedgerImpl : public ledger::Ledger,
 
   void SetPublisherInfo(std::unique_ptr<ledger::PublisherInfo> publisher_info,
                         ledger::PublisherInfoCallback callback) override;
+  void SetActivityInfo(std::unique_ptr<ledger::PublisherInfo> publisher_info,
+                        ledger::PublisherInfoCallback callback) override;
   void GetPublisherInfo(const std::string& publisher_key,
                         ledger::PublisherInfoCallback callback) override;
   void GetActivityInfo(const ledger::PublisherInfoFilter& filter,

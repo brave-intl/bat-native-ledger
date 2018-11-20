@@ -326,9 +326,8 @@ void BatGetMedia::onFetchFavIconDBResponse(ledger::Result result,
                                            const std::string& favicon_url) {
   if (result == ledger::Result::LEDGER_OK && !favicon_url.empty()) {
     info->favicon_url = favicon_url;
-
     ledger_->SetPublisherInfo(std::move(info),
-      std::bind(&onVisitSavedDummy, _1, _2));
+                              std::bind(&onVisitSavedDummy, _1, _2));
   } else {
     BLOG(ledger_, ledger::LogLevel::LOG_WARNING) <<
       "Missing or corrupted favicon file";
