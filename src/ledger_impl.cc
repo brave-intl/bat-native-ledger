@@ -384,10 +384,10 @@ void LedgerImpl::GetMediaPublisherInfo(const std::string& media_key,
   ledger_client_->LoadMediaPublisherInfo(media_key, callback);
 }
 
-void LedgerImpl::GetPublisherInfoList(uint32_t start, uint32_t limit,
+void LedgerImpl::GetActivityInfoList(uint32_t start, uint32_t limit,
                                 const ledger::ActivityInfoFilter& filter,
                                 ledger::PublisherInfoListCallback callback) {
-  ledger_client_->LoadPublisherInfoList(start, limit, filter, callback);
+  ledger_client_->LoadActivityInfoList(start, limit, filter, callback);
 }
 
 void LedgerImpl::GetCurrentPublisherInfoList(uint32_t start, uint32_t limit,

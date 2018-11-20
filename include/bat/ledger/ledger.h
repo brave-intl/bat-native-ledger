@@ -129,7 +129,7 @@ class LEDGER_EXPORT Ledger {
   virtual void GetMediaPublisherInfo(const std::string& media_key,
                                 PublisherInfoCallback callback) = 0;
   virtual std::vector<ContributionInfo> GetRecurringDonationPublisherInfo() = 0;
-  virtual void GetPublisherInfoList(uint32_t start, uint32_t limit,
+  virtual void GetActivityInfoList(uint32_t start, uint32_t limit,
                                     const ledger::ActivityInfoFilter& filter,
                                     PublisherInfoListCallback callback) = 0;
   virtual void GetCurrentPublisherInfoList(uint32_t start, uint32_t limit,

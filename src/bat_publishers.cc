@@ -372,6 +372,7 @@ void BatPublishers::onSetPanelExcludeInternal(ledger::PUBLISHER_EXCLUDE exclude,
   OnExcludedSitesChanged(publisherKey);
 }
 
+// TODO refactor
 void BatPublishers::restorePublishers() {
   uint64_t currentReconcileStamp = ledger_->GetReconcileStamp();
   auto filter = CreateActivityFilter("",
@@ -380,7 +381,7 @@ void BatPublishers::restorePublishers() {
       ledger::EXCLUDE_FILTER::FILTER_EXCLUDED,
       false,
       currentReconcileStamp);
-  ledger_->GetPublisherInfoList(0, 0, filter, std::bind(&BatPublishers::onRestorePublishersInternal,
+  ledger_->GetActivityInfoList(0, 0, filter, std::bind(&BatPublishers::onRestorePublishersInternal,
                                 this, _1, _2));
 }
 
@@ -549,13 +550,9 @@ void BatPublishers::synopsisNormalizer(const ledger::PublisherInfo& info) {
       ledger_->GetReconcileStamp());
   // TODO SZ: We pull the whole list currently, I don't think it consumes lots of RAM, but could.
   // We need to limit it and iterate.
-  ledger_->GetPublisherInfoList(0, 0, filter, std::bind(&BatPublishers::synopsisNormalizerInternal, this,
+  ledger_->GetActivityInfoList(0, 0, filter, std::bind(&BatPublishers::synopsisNormalizerInternal, this,
           nullptr, true, _1, _2));
 }
-
-
-
-
 
 bool BatPublishers::isVerified(const std::string& publisher_id) {
   if (server_list_.empty()) {
@@ -884,7 +881,7 @@ void BatPublishers::onPublisherBanner(ledger::PublisherBannerCallback callback,
 
   auto new_banner = std::make_unique<ledger::PublisherBanner>(banner);
 
-  if (result != ledger::Result::LEDGER_OK) {
+  if (!publisher_info || result != ledger::Result::LEDGER_OK) {
     callback(std::move(new_banner));
     return;
   }

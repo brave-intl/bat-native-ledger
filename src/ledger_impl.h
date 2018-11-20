@@ -70,7 +70,7 @@ class LedgerImpl : public ledger::Ledger,
   void SetMediaPublisherInfo(const std::string& media_key,
                             const std::string& publisher_id) override;
   std::vector<ledger::ContributionInfo> GetRecurringDonationPublisherInfo() override;
-  void GetPublisherInfoList(uint32_t start, uint32_t limit,
+  void GetActivityInfoList(uint32_t start, uint32_t limit,
                             const ledger::ActivityInfoFilter& filter,
                             ledger::PublisherInfoListCallback callback) override;
   void GetCurrentPublisherInfoList(uint32_t start, uint32_t limit,
