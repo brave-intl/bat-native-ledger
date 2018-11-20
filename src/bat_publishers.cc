@@ -80,7 +80,7 @@ void BatPublishers::MakePayment(const ledger::PaymentData& payment_data) {
                                       payment_data.category,
                                       payment_data.local_month,
                                       payment_data.local_year);
-  ledger_->GetPublisherInfo(filter,
+  ledger_->GetActivityInfo(filter,
       std::bind(&BatPublishers::makePaymentInternal, this,
           payment_data, _1, _2));
 }
@@ -116,7 +116,7 @@ void BatPublishers::saveVisit(const std::string& publisher_id,
                 0,
                 _1,
                 _2);
-  ledger_->GetPublisherInfo(filter, callbackGetPublishers);
+  ledger_->GetActivityInfo(filter, callbackGetPublishers);
 }
 
 ledger::PublisherInfoFilter BatPublishers::CreatePublisherFilter(
@@ -285,32 +285,26 @@ std::unique_ptr<ledger::PublisherInfo> BatPublishers::onPublisherInfoUpdated(
   return info;
 }
 
-void BatPublishers::setExclude(const std::string& publisher_id, const ledger::PUBLISHER_EXCLUDE& exclude) {
-  uint64_t currentReconcileStamp = ledger_->GetReconcileStamp();
-  auto filter = CreatePublisherFilter(publisher_id,
-      ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
-      ledger::PUBLISHER_MONTH::ANY,
-      -1,
-      ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL,
-      false,
-      currentReconcileStamp);
-    ledger_->GetPublisherInfo(filter, std::bind(&BatPublishers::onSetExcludeInternal,
-                            this, exclude, _1, _2));
+void BatPublishers::setExclude(const std::string& publisher_id,
+                               const ledger::PUBLISHER_EXCLUDE& exclude) {
+    ledger_->GetPublisherInfo(publisher_id,
+        std::bind(&BatPublishers::onSetExcludeInternal,
+                  this,
+                  exclude,
+                  _1,
+                  _2));
 }
 
 void BatPublishers::setPanelExclude(const std::string& publisher_id,
-  const ledger::PUBLISHER_EXCLUDE& exclude, uint64_t windowId) {
-  uint64_t currentReconcileStamp = ledger_->GetReconcileStamp();
-  auto filter = CreatePublisherFilter(publisher_id,
-      ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
-      ledger::PUBLISHER_MONTH::ANY,
-      -1,
-      ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL,
-      false,
-      currentReconcileStamp);
-    ledger_->GetPublisherInfo(filter, std::bind(
-      &BatPublishers::onSetPanelExcludeInternal,
-      this, exclude, windowId, _1, _2));
+                                    const ledger::PUBLISHER_EXCLUDE& exclude,
+                                    uint64_t windowId) {
+  ledger_->GetPublisherInfo(publisher_id,
+      std::bind(&BatPublishers::onSetPanelExcludeInternal,
+                this,
+                exclude,
+                windowId,
+                _1,
+                _2));
 }
 
 void BatPublishers::onSetExcludeInternal(ledger::PUBLISHER_EXCLUDE exclude,
@@ -803,7 +797,7 @@ void BatPublishers::getPublisherActivityFromUrl(uint64_t windowId, const ledger:
   new_data.url = visit_data.url;
   new_data.favicon_url = "";
 
-  ledger_->GetPublisherInfo(filter,
+  ledger_->GetActivityInfo(filter,
         std::bind(&BatPublishers::onPublisherActivity, this, _1, _2, windowId, new_data));
 }
 
@@ -882,15 +876,6 @@ void BatPublishers::getPublisherBanner(const std::string& publisher_id,
     }
   }
 
-  uint64_t currentReconcileStamp = ledger_->GetReconcileStamp();
-  auto filter = CreatePublisherFilter(publisher_id,
-      ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
-      ledger::PUBLISHER_MONTH::ANY,
-      -1,
-      ledger::PUBLISHER_EXCLUDE_FILTER::FILTER_ALL,
-      false,
-      currentReconcileStamp);
-
   ledger::PublisherInfoCallback callbackGetPublisher = std::bind(&BatPublishers::onPublisherBanner,
                                       this,
                                       callback,
@@ -898,7 +883,7 @@ void BatPublishers::getPublisherBanner(const std::string& publisher_id,
                                       _1,
                                       _2);
 
-  ledger_->GetPublisherInfo(filter, callbackGetPublisher);
+  ledger_->GetPublisherInfo(publisher_id, callbackGetPublisher);
 }
 
 void BatPublishers::onPublisherBanner(ledger::PublisherBannerCallback callback,

@@ -88,7 +88,9 @@ class LEDGER_EXPORT LedgerClient {
 
   virtual void SavePublisherInfo(std::unique_ptr<PublisherInfo> publisher_info,
                                 PublisherInfoCallback callback) = 0;
-  virtual void LoadPublisherInfo(PublisherInfoFilter filter,
+  virtual void LoadPublisherInfo(const std::string& publisher_key,
+                                 PublisherInfoCallback callback) = 0;
+  virtual void LoadActivityInfo(PublisherInfoFilter filter,
                                 PublisherInfoCallback callback) = 0;
   virtual void LoadMediaPublisherInfo(const std::string& media_key,
                                 PublisherInfoCallback callback) = 0;

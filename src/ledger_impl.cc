@@ -357,10 +357,15 @@ std::vector<ledger::ContributionInfo> LedgerImpl::GetRecurringDonationPublisherI
   return bat_publishers_->GetRecurringDonationList();
 }
 
-void LedgerImpl::GetPublisherInfo(
+void LedgerImpl::GetPublisherInfo(const std::string& publisher_key,
+                                  ledger::PublisherInfoCallback callback) {
+  ledger_client_->LoadPublisherInfo(publisher_key, callback);
+}
+
+void LedgerImpl::GetActivityInfo(
     const ledger::PublisherInfoFilter& filter,
     ledger::PublisherInfoCallback callback) {
-  ledger_client_->LoadPublisherInfo(filter, callback);
+  ledger_client_->LoadActivityInfo(filter, callback);
 }
 
 void LedgerImpl::GetMediaPublisherInfo(const std::string& media_key,

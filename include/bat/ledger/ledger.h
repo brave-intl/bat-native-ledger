@@ -118,7 +118,9 @@ class LEDGER_EXPORT Ledger {
 
   virtual void SetPublisherInfo(std::unique_ptr<PublisherInfo> publisher_info,
                                 PublisherInfoCallback callback) = 0;
-  virtual void GetPublisherInfo(const ledger::PublisherInfoFilter& filter,
+  virtual void GetPublisherInfo(const std::string& publisher_key,
+                                PublisherInfoCallback callback) = 0;
+  virtual void GetActivityInfo(const ledger::PublisherInfoFilter& filter,
                                 PublisherInfoCallback callback) = 0;
   virtual void SetMediaPublisherInfo(const std::string& media_key,
                                 const std::string& publisher_id) = 0;
