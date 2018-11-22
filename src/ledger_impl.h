@@ -65,6 +65,8 @@ class LedgerImpl : public ledger::Ledger,
                         ledger::PublisherInfoCallback callback) override;
   void GetActivityInfo(const ledger::ActivityInfoFilter& filter,
                         ledger::PublisherInfoCallback callback) override;
+  void GetPanelPublisherInfo(const ledger::ActivityInfoFilter& filter,
+                             ledger::PublisherInfoCallback callback);
   void GetMediaPublisherInfo(const std::string& media_key,
                                 ledger::PublisherInfoCallback callback) override;
   void SetMediaPublisherInfo(const std::string& media_key,

@@ -96,7 +96,7 @@ void onVisitSavedDummy(ledger::Result result,
 void BatPublishers::saveVisit(const std::string& publisher_id,
                               const ledger::VisitData& visit_data,
                               const uint64_t& duration) {
-  if (!saveVisitAllowed() || publisher_id.empty()) {
+  if (!ledger_->GetRewardsMainEnabled() || publisher_id.empty()) {
     return;
   }
 
@@ -228,34 +228,50 @@ void BatPublishers::saveVisitInternal(
                                                    visit_data.local_year));
   }
 
-  if (!ignoreMinTime(publisher_id) && duration < getPublisherMinVisitTime()) {
-    duration = 0;
-  }
-
   publisher_info->favicon_url = visit_data.favicon_url;
   publisher_info->name = visit_data.name;
   publisher_info->provider = visit_data.provider;
   publisher_info->url = visit_data.url;
-  publisher_info->visits += 1;
-  if (!isExcluded(publisher_info->id, publisher_info->excluded)) {
-    publisher_info->duration += duration;
-  } else {
-    publisher_info->excluded = ledger::PUBLISHER_EXCLUDE::EXCLUDED;
-    if (new_visit) {
-      publisher_info->duration = 0; // don't log auto-excluded
-    }
-  }
-  publisher_info->score += concaveScore(duration);
   publisher_info->verified = isVerified(publisher_info->id);
-  publisher_info->reconcile_stamp = ledger_->GetReconcileStamp();
 
-  auto media_info = std::make_unique<ledger::PublisherInfo>(*publisher_info);
+  bool excluded = isExcluded(publisher_info->id, publisher_info->excluded);
+  bool ignore_time = ignoreMinTime(publisher_id);
+  if (duration == 0) {
+    ignore_time = false;
+  }
+  std::unique_ptr<ledger::PublisherInfo> panel_info = nullptr;
 
-  ledger_->SetActivityInfo(std::move(publisher_info),
-                           std::bind(&onVisitSavedDummy, _1, _2));
+  if (excluded) {
+    publisher_info->excluded = ledger::PUBLISHER_EXCLUDE::EXCLUDED;
+  }
 
-  if (window_id > 0) {
-    onPublisherActivity(ledger::Result::LEDGER_OK, std::move(media_info), window_id, visit_data);
+  // for new visits that are excluded or are not long enough or ac is off
+  if (new_visit &&
+      (excluded ||
+       !saveVisitAllowed() ||
+       (duration < getPublisherMinVisitTime() &&
+        !ignore_time))) {
+    panel_info = std::make_unique<ledger::PublisherInfo>(*publisher_info);
+    ledger_->SetPublisherInfo(std::move(publisher_info),
+                              std::bind(&onVisitSavedDummy, _1, _2));
+  } else if (!excluded &&
+             saveVisitAllowed() &&
+             (duration > getPublisherMinVisitTime() || ignore_time)) {
+    publisher_info->visits += 1;
+    publisher_info->duration += duration;
+    publisher_info->score += concaveScore(duration);
+    publisher_info->reconcile_stamp = ledger_->GetReconcileStamp();
+
+    panel_info = std::make_unique<ledger::PublisherInfo>(*publisher_info);
+    ledger_->SetActivityInfo(std::move(publisher_info),
+                             std::bind(&onVisitSavedDummy, _1, _2));
+  }
+
+  if (panel_info && window_id > 0) {
+    onPublisherActivity(ledger::Result::LEDGER_OK,
+                        std::move(panel_info),
+                        window_id,
+                        visit_data);
   }
 }
 
@@ -384,9 +400,8 @@ void BatPublishers::OnRestorePublishersInternal(bool success) {
     setNumExcludedSites(0);
     OnExcludedSitesChanged();
   } else {
-    ledger_->Log(__func__,
-                 ledger::LogLevel::LOG_ERROR,
-                 {"Could not restore publishers."});
+    BLOG(ledger_, ledger::LogLevel::LOG_ERROR) <<
+      "Could not restore publishers.";
   }
 }
 
@@ -778,7 +793,7 @@ void BatPublishers::getPublisherActivityFromUrl(uint64_t windowId, const ledger:
   new_data.url = visit_data.url;
   new_data.favicon_url = "";
 
-  ledger_->GetActivityInfo(filter,
+  ledger_->GetPanelPublisherInfo(filter,
         std::bind(&BatPublishers::onPublisherActivity, this, _1, _2, windowId, new_data));
 }
 

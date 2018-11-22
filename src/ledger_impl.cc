@@ -383,6 +383,13 @@ void LedgerImpl::GetActivityInfo(
   ledger_client_->LoadActivityInfo(filter, callback);
 }
 
+
+void LedgerImpl::GetPanelPublisherInfo(
+    const ledger::ActivityInfoFilter& filter,
+    ledger::PublisherInfoCallback callback) {
+  ledger_client_->LoadPanelPublisherInfo(filter, callback);
+}
+
 void LedgerImpl::GetMediaPublisherInfo(const std::string& media_key,
                                 ledger::PublisherInfoCallback callback) {
   ledger_client_->LoadMediaPublisherInfo(media_key, callback);
