@@ -2259,7 +2259,7 @@ static bool ignore_ = false;
             if (iter != data.end()) {
               std::string idAddition(iter->second);
               if (idAddition.find('v') != std::string::npos) {
-                id += "_vod_" + braveledger_bat_helper::split(idAddition, 'v')[1];
+                id = "_vod_" + braveledger_bat_helper::split(idAddition, 'v')[1];
               }
             }
 
@@ -2273,7 +2273,11 @@ static bool ignore_ = false;
   }
 
   std::string getMediaKey(const std::string& mediaId, const std::string& type) {
-    return type + "_" + mediaId;
+    if (mediaId.find("_vod_") != std::string::npos) {
+      return type + mediaId;
+    } else {
+      return type + "_" + mediaId;
+    }
   }
 
   uint64_t getMediaDuration(const std::map<std::string, std::string>& data, const std::string& media_key, const std::string& type) {

@@ -821,6 +821,14 @@ ledger::PublisherInfoFilter LedgerImpl::CreatePublisherFilter(const std::string&
                                         currentReconcileStamp);
 }
 
+ledger::PublisherInfoFilter LedgerImpl::CreatePublisherFilter(
+  const std::string& publisher_id,
+  ledger::PUBLISHER_CATEGORY category,
+  ledger::PUBLISHER_MONTH month,
+  int year) {
+    return bat_publishers_->CreatePublisherFilter(publisher_id, category, month,
+      year);
+}
 
 std::unique_ptr<ledger::LogStream> LedgerImpl::Log(
   const char* file,
@@ -1044,6 +1052,22 @@ LedgerImpl::GetCurrentReconciles() const {
 
 double LedgerImpl::GetDefaultContributionAmount() {
   return bat_state_->GetDefaultContributionAmount();
+}
+
+void LedgerImpl::OnTwitchInfo(
+  const std::string& page_blob,
+  ledger::PUBLISHER_MONTH month,
+  int year, const std::string& url) {
+  bat_get_media_->checkTwitchInfo(page_blob, month, year, url);
+}
+
+std::string LedgerImpl::EvaluateTwitchPublisherBlob(
+  const std::string& publisher_blob,
+  const std::string& url) {
+  if (!bat_get_media_->hasTwitchPublisherInfo(publisher_blob)) {
+    return TWITCH_FULL_URL;
+  }
+  return url;
 }
 
 }  // namespace bat_ledger

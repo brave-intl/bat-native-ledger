@@ -44,6 +44,12 @@ class BatGetMedia {
   void getMediaActivityFromUrl(uint64_t windowId,
                                const ledger::VisitData& visit_data,
                                const std::string& providerType);
+  void checkTwitchInfo(
+    const std::string& page_blob,
+    ledger::PUBLISHER_MONTH month,
+    int year,
+    const std::string& url);
+  bool hasTwitchPublisherInfo(const std::string& page_blob);
 
  private:
   std::string getMediaURL(const std::string& mediaId, const std::string& providerName);
@@ -83,11 +89,13 @@ class BatGetMedia {
 
   void onFetchFavIcon(const std::string& publisher_key,
                       bool success,
-                      const std::string& favicon_url);
+                      const std::string& favicon_url,
+                      const std::string& name);
 
   void onFetchFavIconDBResponse(ledger::Result result,
                            std::unique_ptr<ledger::PublisherInfo> info,
-                           const std::string& favicon_url);
+                           const std::string& favicon_url,
+                           const std::string& name);
 
   std::string getTwitchStatus(const ledger::TwitchEventInfo& oldEventInfo,
                               const ledger::TwitchEventInfo& newEventInfo);
@@ -180,8 +188,13 @@ class BatGetMedia {
   std::string parseChannelId(const std::string& data);
 
   std::string getYoutubeMediaIdFromUrl(const ledger::VisitData& visit_data);
+  std::string getTwitchMediaIdFromUrl(const ledger::VisitData& visit_data);
 
   std::string getYoutubeMediaKeyFromUrl(const std::string& provider_type, const std::string& media_id);
+  std::string getTwitchMediaKeyFromUrl(
+    const std::string& provider_type,
+    const std::string& media_id,
+    const std::string& url);
 
   std::string getYoutubePublisherKeyFromUrl(const ledger::VisitData& visit_data);
 
@@ -199,6 +212,18 @@ class BatGetMedia {
                                 const std::string& publisher_key);
 
   void fetchDataFromUrl(const std::string& url, FetchDataFromUrlCallback callback);
+  std::string parseTwitchData(
+    std::string& userId,
+    const std::string& page_blob);
+  void getTwitchPublisherInfoDataCallback(
+    std::string& userId,
+    const std::string& faviconUrl,
+    ledger::PUBLISHER_MONTH,
+    int year,
+    const std::string& name,
+    const std::string& url,
+    ledger::Result result,
+    std::unique_ptr<ledger::PublisherInfo> publisher_info);
 
   std::string getNameFromChannel(const std::string& data);
 

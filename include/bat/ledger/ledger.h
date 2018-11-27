@@ -189,6 +189,13 @@ class LEDGER_EXPORT Ledger {
                                           const uint32_t date) = 0;
   virtual void RemoveRecurring(const std::string& publisher_key) = 0;
   virtual double GetDefaultContributionAmount() = 0;
+  virtual void OnTwitchInfo(
+    const std::string& page_blob,
+    ledger::PUBLISHER_MONTH month,
+    int year,
+    const std::string& url) = 0;
+  virtual std::string EvaluateTwitchPublisherBlob(const std::string& publisher_blob,
+    const std::string& url) = 0;
 };
 
 }  // namespace ledger
