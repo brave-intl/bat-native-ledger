@@ -904,7 +904,6 @@ void BatPublishers::onPublisherBanner(ledger::PublisherBannerCallback callback,
   }
 
   new_banner->name = publisher_info->name;
-  new_banner->provider = publisher_info->provider;
 
   if (new_banner->logo.empty()) {
     new_banner->logo = publisher_info->favicon_url;
