@@ -6,6 +6,7 @@
 #define BAT_LEDGER_LEDGER_CALLBACK_HANDLER_
 
 #include <string>
+#include <map>
 
 #include "bat/ledger/export.h"
 

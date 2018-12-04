@@ -89,7 +89,7 @@ static const uint64_t phase_two_timers[] = {
     24 * 60 * 60};  // 24h
 
 static const uint64_t phase_one_debug_timers[] = {
-    0.5 * 60,  // 30sec
+    30,  // 30sec
     1 * 60,  //  1min
     2 * 60,  //  2min
     3 * 60,  // 3min
