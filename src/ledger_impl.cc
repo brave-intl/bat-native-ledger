@@ -309,7 +309,18 @@ std::string LedgerImpl::URIEncode(const std::string& value) {
 
 void LedgerImpl::SetPublisherInfo(std::unique_ptr<ledger::PublisherInfo> info,
                                   ledger::PublisherInfoCallback callback) {
-  ledger_client_->SavePublisherInfo(std::move(info),
+  ledger_client_->SavePublisherInfo(
+      std::move(info),
+      std::bind(&LedgerImpl::OnSetPublisherInfo,
+                this,
+                callback,
+                _1,
+                _2));
+}
+
+void LedgerImpl::SetActivityInfo(std::unique_ptr<ledger::PublisherInfo> info,
+                                  ledger::PublisherInfoCallback callback) {
+  ledger_client_->SaveActivityInfo(std::move(info),
       std::bind(&LedgerImpl::OnSetPublisherInfo, this, callback, _1, _2));
 }
 
@@ -339,7 +350,11 @@ void LedgerImpl::SetPublisherPanelExclude(const std::string& publisher_id,
 }
 
 void LedgerImpl::RestorePublishers() {
-  bat_publishers_->restorePublishers();
+  bat_publishers_->RestorePublishers();
+}
+
+void LedgerImpl::OnRestorePublishers(ledger::OnRestoreCallback callback) {
+  ledger_client_->OnRestorePublishers(callback);
 }
 
 void LedgerImpl::LoadNicewareList(ledger::GetNicewareListCallback callback) {
@@ -357,10 +372,22 @@ std::vector<ledger::ContributionInfo> LedgerImpl::GetRecurringDonationPublisherI
   return bat_publishers_->GetRecurringDonationList();
 }
 
-void LedgerImpl::GetPublisherInfo(
-    const ledger::PublisherInfoFilter& filter,
+void LedgerImpl::GetPublisherInfo(const std::string& publisher_key,
+                                  ledger::PublisherInfoCallback callback) {
+  ledger_client_->LoadPublisherInfo(publisher_key, callback);
+}
+
+void LedgerImpl::GetActivityInfo(
+    const ledger::ActivityInfoFilter& filter,
     ledger::PublisherInfoCallback callback) {
-  ledger_client_->LoadPublisherInfo(filter, callback);
+  ledger_client_->LoadActivityInfo(filter, callback);
+}
+
+
+void LedgerImpl::GetPanelPublisherInfo(
+    const ledger::ActivityInfoFilter& filter,
+    ledger::PublisherInfoCallback callback) {
+  ledger_client_->LoadPanelPublisherInfo(filter, callback);
 }
 
 void LedgerImpl::GetMediaPublisherInfo(const std::string& media_key,
@@ -368,14 +395,14 @@ void LedgerImpl::GetMediaPublisherInfo(const std::string& media_key,
   ledger_client_->LoadMediaPublisherInfo(media_key, callback);
 }
 
-void LedgerImpl::GetPublisherInfoList(uint32_t start, uint32_t limit,
-                                const ledger::PublisherInfoFilter& filter,
+void LedgerImpl::GetActivityInfoList(uint32_t start, uint32_t limit,
+                                const ledger::ActivityInfoFilter& filter,
                                 ledger::PublisherInfoListCallback callback) {
-  ledger_client_->LoadPublisherInfoList(start, limit, filter, callback);
+  ledger_client_->LoadActivityInfoList(start, limit, filter, callback);
 }
 
 void LedgerImpl::GetCurrentPublisherInfoList(uint32_t start, uint32_t limit,
-                                const ledger::PublisherInfoFilter& filter,
+                                const ledger::ActivityInfoFilter& filter,
                                 ledger::PublisherInfoListCallback callback) {
   ledger_client_->LoadCurrentPublisherInfoList(start, limit, filter, callback);
 }
@@ -476,7 +503,7 @@ void LedgerImpl::OnReconcileComplete(ledger::Result result,
   ledger_client_->OnReconcileComplete(
       result,
       viewing_id,
-      (ledger::PUBLISHER_CATEGORY)reconcile.category_,
+      (ledger::REWARDS_CATEGORY)reconcile.category_,
       probi);
 }
 
@@ -584,7 +611,7 @@ void LedgerImpl::OnGrantFinish(ledger::Result result, const braveledger_bat_help
   ledger_client_->OnGrantFinish(result, newGrant);
 }
 
-bool LedgerImpl::GetBalanceReport(ledger::PUBLISHER_MONTH month,
+bool LedgerImpl::GetBalanceReport(ledger::ACTIVITY_MONTH month,
                                 int year,
                                 ledger::BalanceReportInfo* report_info) const {
   return bat_publishers_->getBalanceReport(month, year, report_info);
@@ -594,7 +621,7 @@ std::map<std::string, ledger::BalanceReportInfo> LedgerImpl::GetAllBalanceReport
   return bat_publishers_->getAllBalanceReports();
 }
 
-void LedgerImpl::SetBalanceReport(ledger::PUBLISHER_MONTH month,
+void LedgerImpl::SetBalanceReport(ledger::ACTIVITY_MONTH month,
                                 int year,
                                 const ledger::BalanceReportInfo& report_info) {
   bat_publishers_->setBalanceReport(month, year, report_info);
@@ -613,7 +640,7 @@ void LedgerImpl::DoDirectDonation(const ledger::PublisherInfo& publisher, const 
   auto direction_list = std::vector<braveledger_bat_helper::RECONCILE_DIRECTION> { direction };
   braveledger_bat_helper::PublisherList list;
   bat_contribution_->StartReconcile(GenerateGUID(),
-                         ledger::PUBLISHER_CATEGORY::DIRECT_DONATION,
+                         ledger::REWARDS_CATEGORY::DIRECT_DONATION,
                          list,
                          direction_list);
 }
@@ -758,7 +785,7 @@ void LedgerImpl::OnExcludedSitesChanged(const std::string& publisher_id) {
   ledger_client_->OnExcludedSitesChanged(publisher_id);
 }
 
-void LedgerImpl::SetBalanceReportItem(ledger::PUBLISHER_MONTH month,
+void LedgerImpl::SetBalanceReportItem(ledger::ACTIVITY_MONTH month,
                                       int year,
                                       ledger::ReportType type,
                                       const std::string& probi) {
@@ -781,9 +808,9 @@ double LedgerImpl::GetBalance() {
 }
 
 void LedgerImpl::OnReconcileCompleteSuccess(const std::string& viewing_id,
-                                            const ledger::PUBLISHER_CATEGORY category,
+                                            const ledger::REWARDS_CATEGORY category,
                                             const std::string& probi,
-                                            const ledger::PUBLISHER_MONTH month,
+                                            const ledger::ACTIVITY_MONTH month,
                                             const int year,
                                             const uint32_t date) {
 
@@ -811,15 +838,14 @@ void LedgerImpl::OnRemovedRecurring(ledger::Result result) {
   }
 }
 
-ledger::PublisherInfoFilter LedgerImpl::CreatePublisherFilter(const std::string& publisher_id,
-                                                  ledger::PUBLISHER_CATEGORY category,
-                                                  ledger::PUBLISHER_MONTH month,
-                                                  int year,
-                                                  ledger::PUBLISHER_EXCLUDE_FILTER excluded,
-                                                  bool min_duration,
-                                                  const uint64_t& currentReconcileStamp) {
-  return bat_publishers_->CreatePublisherFilter(publisher_id,
-                                        category,
+ledger::ActivityInfoFilter LedgerImpl::CreateActivityFilter(
+    const std::string& publisher_id,
+    ledger::ACTIVITY_MONTH month,
+    int year,
+    ledger::EXCLUDE_FILTER excluded,
+    bool min_duration,
+    const uint64_t& currentReconcileStamp) {
+  return bat_publishers_->CreateActivityFilter(publisher_id,
                                         month,
                                         year,
                                         excluded,
@@ -1012,7 +1038,7 @@ void LedgerImpl::SaveContributionInfo(const std::string& probi,
     const int year,
     const uint32_t date,
     const std::string& publisher_key,
-    const ledger::PUBLISHER_CATEGORY category) {
+    const ledger::REWARDS_CATEGORY category) {
   ledger_client_->SaveContributionInfo(probi,
                                        month,
                                        year,
