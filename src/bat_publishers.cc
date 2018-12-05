@@ -398,7 +398,7 @@ void BatPublishers::RestorePublishers() {
 void BatPublishers::OnRestorePublishersInternal(bool success) {
   if (success) {
     setNumExcludedSites(0);
-    OnExcludedSitesChanged();
+    OnExcludedSitesChanged("");
   } else {
     BLOG(ledger_, ledger::LogLevel::LOG_ERROR) <<
       "Could not restore publishers.";
