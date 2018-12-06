@@ -52,6 +52,11 @@ LEDGER_EXPORT enum PUBLISHER_EXCLUDE_FILTER {
   FILTER_ALL_EXCEPT_EXCLUDED = 3
 };
 
+LEDGER_EXPORT enum PUBLISHER_PERCENT_FILTER {
+  FILTER_ALL_PERCENT = -1,
+  FILTER_ZERO = 0
+};
+
 LEDGER_EXPORT struct PublisherInfoFilter {
   PublisherInfoFilter();
   PublisherInfoFilter(const PublisherInfoFilter& filter);
@@ -62,6 +67,7 @@ LEDGER_EXPORT struct PublisherInfoFilter {
   PUBLISHER_MONTH month;
   int year;
   PUBLISHER_EXCLUDE_FILTER excluded;
+  PUBLISHER_PERCENT_FILTER percent;
   std::vector<std::pair<std::string, bool>> order_by;
   unsigned int min_duration;
   uint64_t reconcile_stamp;
