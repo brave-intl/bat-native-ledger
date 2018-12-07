@@ -53,6 +53,7 @@
 #define YOUTUBE_TLD                     "youtube.com"
 #define TWITCH_TLD                      "twitch.tv"
 #define TWITCH_VOD_URL                  "https://www.twitch.tv/videos/"
+#define TWITCH_FULL_URL                 "https://www.twitch.tv/"
 #define MEDIA_DELIMITER                 '_'
 #define WALLET_PASSPHRASE_DELIM         ' '
 #define DICTIONARY_DELIMITER            '\n'

@@ -198,6 +198,11 @@ class LedgerImpl : public ledger::Ledger,
       const char* file,
       int line,
       const ledger::LogLevel log_level) const;
+  ledger::PublisherInfoFilter CreatePublisherFilter(
+      const std::string& publisher_id,
+      ledger::PUBLISHER_CATEGORY category,
+      ledger::PUBLISHER_MONTH month,
+      int year);
   void LogResponse(const std::string& func_name,
                    bool result,
                    const std::string& response,
@@ -273,6 +278,13 @@ class LedgerImpl : public ledger::Ledger,
 
   void SetTimer(uint64_t time_offset, uint32_t& timer_id) const;
 
+  void OnTwitchInfo(
+    const std::string& page_blob,
+    ledger::PUBLISHER_MONTH month,
+    int year,
+    const std::string& url) override;
+  std::string EvaluateTwitchPublisherBlob(const std::string& publisher_blob,
+    const std::string& url) override;
   bool AddReconcileStep(const std::string& viewing_id,
                         braveledger_bat_helper::ContributionRetry step,
                         int level = -1);

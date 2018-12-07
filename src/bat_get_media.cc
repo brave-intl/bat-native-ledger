@@ -59,10 +59,10 @@ void BatGetMedia::processMedia(const std::map<std::string, std::string>& parts, 
     return;
   }
   std::string mediaId = braveledger_bat_helper::getMediaId(parts, type);
-  BLOG(ledger_, ledger::LogLevel::LOG_DEBUG) << "Media Id: " << mediaId;
   if (mediaId.empty()) {
     return;
   }
+  BLOG(ledger_, ledger::LogLevel::LOG_DEBUG) << "Media Id: " << mediaId;
   std::string media_key = braveledger_bat_helper::getMediaKey(mediaId, type);
   BLOG(ledger_, ledger::LogLevel::LOG_DEBUG) << "Media key: " << media_key;
   uint64_t duration = 0;
@@ -144,10 +144,6 @@ void BatGetMedia::getPublisherInfoDataCallback(const std::string& mediaId,
       uint64_t realDuration = getTwitchDuration(oldEvent, newEvent);
       twitchEvents[media_key] = newEvent;
 
-      if (realDuration == 0) {
-        return;
-      }
-
       std::string twitchMediaID = mediaId;
       std::string mediaUrl = getMediaURL(twitchMediaID, providerName);
 
@@ -163,7 +159,7 @@ void BatGetMedia::getPublisherInfoDataCallback(const std::string& mediaId,
         }
 
         twitchMediaID = media_props[0];
-        mediaUrl = getMediaURL(twitchMediaID, providerName);
+        mediaUrl = TWITCH_VOD_URL + media_props[2];
         std::string oembed_url = (std::string)TWITCH_VOD_URL + media_props[media_props.size() - 1];
         updated_visit_data.name = twitchMediaID;
         updated_visit_data.url = mediaUrl + "/videos";
@@ -312,7 +308,8 @@ uint64_t BatGetMedia::getTwitchDuration(const ledger::TwitchEventInfo& oldEventI
 
 void BatGetMedia::onFetchFavIcon(const std::string& publisher_key,
                                  bool success,
-                                 const std::string& favicon_url) {
+                                 const std::string& favicon_url,
+                                 const std::string& name) {
   uint64_t currentReconcileStamp = ledger_->GetReconcileStamp();
   auto filter = ledger_->CreatePublisherFilter(publisher_key,
       ledger::PUBLISHER_CATEGORY::AUTO_CONTRIBUTE,
@@ -323,13 +320,15 @@ void BatGetMedia::onFetchFavIcon(const std::string& publisher_key,
       currentReconcileStamp);
   ledger_->GetPublisherInfo(filter,
       std::bind(&BatGetMedia::onFetchFavIconDBResponse,
-      this, _1, _2, favicon_url));
+      this, _1, _2, favicon_url, name));
 }
 
 void BatGetMedia::onFetchFavIconDBResponse(ledger::Result result,
                                            std::unique_ptr<ledger::PublisherInfo> info,
-                                           const std::string& favicon_url) {
+                                           const std::string& favicon_url,
+                                           const std::string& name) {
   if (result == ledger::Result::LEDGER_OK && !favicon_url.empty()) {
+    info->name = name;
     info->favicon_url = favicon_url;
 
     ledger_->SetPublisherInfo(std::move(info),
@@ -384,20 +383,28 @@ void BatGetMedia::getPublisherFromMediaPropsCallback(const uint64_t& duration,
   if (providerName == TWITCH_MEDIA_TYPE) {
     std::string fav_icon;
     braveledger_bat_helper::getJSONValue("author_thumbnail_url", response, fav_icon);
+    std::string author_url;
+    braveledger_bat_helper::getJSONValue("author_url", response, author_url);
     std::string author_name;
     braveledger_bat_helper::getJSONValue("author_name", response, author_name);
-
+    std::string media_url(mediaURL);
     std::string twitchMediaID = visit_data.name;
+    if (twitchMediaID == "twitch") {
+      twitchMediaID = extractData(author_url, TWITCH_FULL_URL, "/");
+      media_url = getMediaURL(twitchMediaID, providerName);
+    }
     std::string id = providerName + "#author:" + twitchMediaID;
 
     ledger::VisitData updated_visit_data(visit_data);
     updated_visit_data.favicon_url = "https://" + ledger_->GenerateGUID() + ".invalid";
     updated_visit_data.name = author_name;
+    updated_visit_data.url = media_url;
 
     if (fav_icon.length() > 0) {
       ledger_->FetchFavIcon(fav_icon,
                             updated_visit_data.favicon_url,
-                            std::bind(&BatGetMedia::onFetchFavIcon, this, id, _1, _2));
+                            std::bind(&BatGetMedia::onFetchFavIcon, this, id,
+                            _1, _2, updated_visit_data.name));
     }
 
     ledger_->SaveMediaVisit(id, updated_visit_data, duration, window_id);
@@ -467,7 +474,8 @@ void BatGetMedia::savePublisherInfo(const uint64_t& duration,
       ".invalid";
     ledger_->FetchFavIcon(favIconURL,
                           favicon_key,
-                          std::bind(&BatGetMedia::onFetchFavIcon, this, publisher_id, _1, _2));
+                          std::bind(&BatGetMedia::onFetchFavIcon, this,
+                          publisher_id, _1, _2, publisherName));
   }
 
   ledger::VisitData updated_visit_data(visit_data);
@@ -567,7 +575,18 @@ void BatGetMedia::processYoutubeMediaPanel(uint64_t windowId,
 
 void BatGetMedia::processTwitchMediaPanel(uint64_t windowId,
   const ledger::VisitData& visit_data, const std::string& providerType) {
-  // TODO add support for twitch
+  std::string media_id = getTwitchMediaIdFromUrl(visit_data);
+  std::transform(media_id.begin(), media_id.end(), media_id.begin(), ::tolower);
+  std::string media_key = getTwitchMediaKeyFromUrl(providerType, media_id,
+    visit_data.url);
+  if (!media_key.empty() || !media_id.empty()) {
+    ledger_->GetMediaPublisherInfo(media_key,
+      std::bind(&BatGetMedia::onMediaPublisherActivity,
+      this, _1, _2, windowId, visit_data,
+      providerType, media_key, media_id));
+  } else {
+    onMediaActivityError(visit_data, providerType, windowId);
+  }
 }
 
 void BatGetMedia::processYoutubeWatchPath(uint64_t windowId,
@@ -809,6 +828,17 @@ std::string BatGetMedia::getYoutubeMediaIdFromUrl(const ledger::VisitData& visit
   return std::string();
 }
 
+std::string BatGetMedia::getTwitchMediaIdFromUrl(
+  const ledger::VisitData& visit_data) {
+  std::string mediaId =
+    extractData(visit_data.url, "twitch.tv/", "/");
+  if (mediaId == "videos") {
+    mediaId = "twitch_vod_" +
+      extractData(visit_data.url, "twitch.tv/videos/", "/");
+  }
+  return mediaId;
+}
+
 std::string BatGetMedia::getYoutubeMediaKeyFromUrl(
   const std::string& provider_type,
   const std::string& id) {
@@ -817,6 +847,20 @@ std::string BatGetMedia::getYoutubeMediaKeyFromUrl(
   }
 
   return std::string();
+}
+
+std::string BatGetMedia::getTwitchMediaKeyFromUrl(
+  const std::string& provider_type,
+  const std::string& id,
+  const std::string& url) {
+  if (id == "twitch") {
+    return std::string();
+  }
+  if (url.find("twitch.tv/videos") != std::string::npos) {
+    std::string vodId = extractData(url, "twitch.tv/videos/", "/");
+    return provider_type + "_vod_" + vodId;
+  }
+  return provider_type + "_" + id;
 }
 
 std::string BatGetMedia::getYoutubePublisherKeyFromUrl(const ledger::VisitData& visit_data) {
@@ -839,6 +883,8 @@ std::string BatGetMedia::extractData(const std::string& data,
       match = data.substr(startPos, endPos - startPos);
     } else if (endPos != std::string::npos) {
       match = data.substr(startPos, endPos);
+    } else {
+      match = data.substr(startPos, std::string::npos);
     }
   }
   return match;
@@ -846,6 +892,78 @@ std::string BatGetMedia::extractData(const std::string& data,
 
 std::string BatGetMedia::getNameFromChannel(const std::string& data) {
   return extractData(data, "channelMetadataRenderer\":{\"title\":\"", "\"");
+}
+
+void BatGetMedia::checkTwitchInfo(
+  const std::string& page_blob,
+  ledger::PUBLISHER_MONTH month,
+  int year, const std::string& url) {
+  std::string userId;
+  std::string faviconUrl = parseTwitchData(userId, page_blob);
+  std::string name(userId);
+  if (!userId.empty()) {
+    std::transform(userId.begin(), userId.end(), userId.begin(), ::tolower);
+    std::string mediaKey;
+    if (url.find("twitch.tv/videos") != std::string::npos) {
+      std::string vodId = extractData(url, "twitch.tv/videos/", "/");
+      mediaKey = "twitch_vod_" + vodId;
+    } else {
+      mediaKey = "twitch_" + userId;
+    }
+    ledger_->GetMediaPublisherInfo(mediaKey,
+      std::bind(&BatGetMedia::getTwitchPublisherInfoDataCallback,
+      this,
+      userId,
+      faviconUrl,
+      month,
+      year,
+      name,
+      url,
+      _1,
+      _2));
+  }
+}
+
+void BatGetMedia::getTwitchPublisherInfoDataCallback(
+  std::string& userId,
+  const std::string& faviconUrl,
+  ledger::PUBLISHER_MONTH month,
+  int year,
+  const std::string& name,
+  const std::string& url,
+  ledger::Result result,
+  std::unique_ptr<ledger::PublisherInfo> publisher_info) {
+  if (result == ledger::Result::NOT_FOUND) {
+    return;
+  }
+  if (publisher_info) {
+    std::string favicon_key = "https://" + ledger_->GenerateGUID() +
+      ".invalid";
+    ledger_->FetchFavIcon(faviconUrl,
+                          favicon_key,
+                          std::bind(
+                          &BatGetMedia::onFetchFavIcon, this,
+                          publisher_info->id, _1, _2, name));
+  }
+}
+
+std::string BatGetMedia::parseTwitchData(
+  std::string& userId, const std::string& page_blob) {
+  userId = extractData(page_blob,
+    "<figure class=\"tw-avatar tw-avatar--size-36\">"
+    "<div class=\"tw-border-radius-medium tw-overflow-hidden\">"
+    "<img class=\"tw-avatar__img tw-image\" alt=\"", "\"");
+  return extractData(page_blob,
+    "<figure class=\"tw-avatar tw-avatar--size-36\">"
+    "<div class=\"tw-border-radius-medium tw-overflow-hidden\">"
+    "<img class=\"tw-avatar__img tw-image\" alt=\"" + userId + "\" src=\"",
+    "\"");
+}
+
+bool BatGetMedia::hasTwitchPublisherInfo(const std::string& page_blob) {
+  std::string userId;
+  std::string faviconUrl = parseTwitchData(userId, page_blob);
+  return !userId.empty() && !faviconUrl.empty();
 }
 
 }  // namespace braveledger_bat_get_media
