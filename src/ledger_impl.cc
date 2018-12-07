@@ -811,14 +811,16 @@ ledger::PublisherInfoFilter LedgerImpl::CreatePublisherFilter(const std::string&
                                                   int year,
                                                   ledger::PUBLISHER_EXCLUDE_FILTER excluded,
                                                   bool min_duration,
-                                                  const uint64_t& currentReconcileStamp) {
+                                                  const uint64_t& currentReconcileStamp,
+                                                  bool non_verified) {
   return bat_publishers_->CreatePublisherFilter(publisher_id,
                                         category,
                                         month,
                                         year,
                                         excluded,
                                         min_duration,
-                                        currentReconcileStamp);
+                                        currentReconcileStamp,
+                                        non_verified);
 }
 
 

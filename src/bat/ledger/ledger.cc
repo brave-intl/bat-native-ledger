@@ -89,7 +89,8 @@ PublisherInfoFilter::PublisherInfoFilter() :
     year(-1),
     excluded(PUBLISHER_EXCLUDE_FILTER::FILTER_DEFAULT),
     min_duration(0),
-    reconcile_stamp(0) {}
+    reconcile_stamp(0),
+    non_verified(true) {}
 PublisherInfoFilter::PublisherInfoFilter(const PublisherInfoFilter& filter) :
     id(filter.id),
     category(filter.category),
@@ -98,7 +99,8 @@ PublisherInfoFilter::PublisherInfoFilter(const PublisherInfoFilter& filter) :
     excluded(filter.excluded),
     order_by(filter.order_by),
     min_duration(filter.min_duration),
-    reconcile_stamp(filter.reconcile_stamp) {}
+    reconcile_stamp(filter.reconcile_stamp),
+    non_verified(filter.non_verified) {}
 PublisherInfoFilter::~PublisherInfoFilter() {}
 
 PublisherBanner::PublisherBanner() {}
