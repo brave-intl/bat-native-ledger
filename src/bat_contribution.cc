@@ -7,6 +7,7 @@
 #include <ctime>
 #include <map>
 #include <vector>
+#include <sstream>
 
 #include "anon/anon.h"
 #include "bat_contribution.h"
